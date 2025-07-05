@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindfulMe Pro - Advanced Mental Health Companion</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tensorflow@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sentiment"></script>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="animated-bg">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+        <div class="gradient-orb orb-3"></div>
+    </div>
+
+    <!-- Enhanced Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand" onclick="showPage('home')">
+                <div class="logo-animation">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <span class="brand-text">MindfulMe <span class="pro-badge">PRO</span></span>
+            </div>
+            <button class="nav-toggle" onclick="toggleNav()">
+                <span></span><span></span><span></span>
+            </button>
+            <div class="nav-menu" id="navMenu">
+                <a href="#" class="nav-link" onclick="showPage('home')">
+                    <i class="fas fa-home"></i> Dashboard
+                </a>
+                <a href="#" class="nav-link" onclick="showPage('mood')">
+                    <i class="fas fa-smile"></i> Mood
+                </a>
+                <a href="#" class="nav-link" onclick="showPage('breathe')">
+                    <i class="fas fa-wind"></i> Breathe
+                </a>
+                <a href="#" class="nav-link" onclick="showPage('journal')">
+                    <i class="fas fa-book"></i> Journal
+                </a>
+                <a href="#" class="nav-link" onclick="showPage('insights')">
+                    <i class="fas fa-chart-line"></i> Analytics
+                </a>
+                <a href="#" class="nav-link" onclick="showPage('meditation')">
+                    <i class="fas fa-spa"></i> Meditate
+                </a>
+                <a href="#" class="nav-link" onclick="showPage('community')">
+                    <i class="fas fa-users"></i> Community
+                </a>
+                <a href="#" class="nav-link" onclick="showPage('ai-therapist')">
+                    <i class="fas fa-robot"></i> AI Therapist
+                </a>
+            </div>
+            <div class="nav-actions">
+                <button class="notification-btn" onclick="toggleNotifications()">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge" id="notificationCount">3</span>
+                </button>
+                <div class="user-avatar" onclick="toggleProfile()">
+                    <img src="https://ui-avatars.com/api/?name=User&background=6366f1&color=fff" alt="User">
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Notification Panel -->
+    <div class="notification-panel" id="notificationPanel">
+        <h3>Notifications</h3>
+        <div class="notification-list">
+            <div class="notification-item">
+                <i class="fas fa-trophy"></i>
+                <div>
+                    <p>Achievement Unlocked: 7-Day Streak!</p>
+                    <span>2 hours ago</span>
+                </div>
+            </div>
+            <div class="notification-item">
+                <i class="fas fa-heart"></i>
+                <div>
+                    <p>Time for your daily mood check-in</p>
+                    <span>3 hours ago</span>
+                </div>
+            </div>
+            <div class="notification-item">
+                <i class="fas fa-brain"></i>
+                <div>
+                    <p>New meditation session available</p>
+                    <span>Yesterday</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Hero Section / Dashboard -->
+    <div class="hero-section page-section">
+        <div class="container">
+            <!-- Welcome Section with Time-based Greeting -->
+            <div class="welcome-section glassmorphism">
+                <h1 class="greeting" id="greeting">Good Morning, <span class="username">Friend</span>!</h1>
+                <p class="date-time" id="dateTime"></p>
+                <div class="quick-stats">
+                    <div class="quick-stat">
+                        <i class="fas fa-fire"></i>
+                        <span id="currentStreak">0</span> day streak
+                    </div>
+                    <div class="quick-stat">
+                        <i class="fas fa-battery-three-quarters"></i>
+                        <span id="mentalBattery">75</span>% mental energy
+                    </div>
+                    <div class="quick-stat">
+                        <i class="fas fa-chart-line"></i>
+                        <span id="weekTrend">↑ 12%</span> this week
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI-Powered Insights Card -->
+            <div class="ai-insights-card glassmorphism">
+                <div class="ai-header">
+                    <div class="ai-avatar pulse">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3>AI Insights</h3>
+                </div>
+                <div class="ai-content">
+                    <p id="aiInsight">Based on your recent mood patterns, I notice you tend to feel more energetic in the mornings. Consider scheduling important tasks during this time!</p>
+                    <div class="ai-suggestions">
+                        <button class="suggestion-chip" onclick="showPage('breathe')">
+                            <i class="fas fa-wind"></i> Try breathing exercise
+                        </button>
+                        <button class="suggestion-chip" onclick="showPage('journal')">
+                            <i class="fas fa-pen"></i> Journal about it
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Enhanced Stats Dashboard -->
+            <div class="stats-grid">
+                <div class="stat-card glassmorphism" data-tilt>
+                    <div class="stat-icon-wrapper">
+                        <div class="stat-icon-bg"></div>
+                        <i class="fas fa-fire stat-icon"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="streakDays">0</div>
+                        <div class="stat-label">Day Streak</div>
+                        <div class="stat-progress">
+                            <div class="progress-bar" style="width: 70%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card glassmorphism" data-tilt>
+                    <div class="stat-icon-wrapper">
+                        <div class="stat-icon-bg"></div>
+                        <i class="fas fa-smile stat-icon"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="avgMoodScore">4.2</div>
+                        <div class="stat-label">Mood Score</div>
+                        <canvas id="miniMoodChart" width="100" height="40"></canvas>
+                    </div>
+                </div>
+
+                <div class="stat-card glassmorphism" data-tilt>
+                    <div class="stat-icon-wrapper">
+                        <div class="stat-icon-bg"></div>
+                        <i class="fas fa-brain stat-icon"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="mindfulMinutes">156</div>
+                        <div class="stat-label">Mindful Minutes</div>
+                        <div class="stat-subtext">23 min today</div>
+                    </div>
+                </div>
+
+                <div class="stat-card glassmorphism" data-tilt>
+                    <div class="stat-icon-wrapper">
+                        <div class="stat-icon-bg"></div>
+                        <i class="fas fa-book stat-icon"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="journalEntries">28</div>
+                        <div class="stat-label">Journal Entries</div>
+                        <div class="stat-subtext">3 this week</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive Feature Cards -->
+            <div class="feature-grid">
+                <div class="feature-card glassmorphism hover-lift" onclick="showPage('mood')">
+                    <div class="feature-glow"></div>
+                    <div class="feature-icon floating">
+                        <i class="fas fa-theater-masks"></i>
+                    </div>
+                    <h3>Mood Tracker</h3>
+                    <p>Advanced emotion tracking with AI analysis</p>
+                    <div class="feature-meta">
+                        <span class="last-used">Last: 2 hours ago</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </div>
+
+                <div class="feature-card glassmorphism hover-lift" onclick="showPage('meditation')">
+                    <div class="feature-glow"></div>
+                    <div class="feature-icon floating">
+                        <i class="fas fa-spa"></i>
+                    </div>
+                    <h3>Guided Meditation</h3>
+                    <p>Personalized meditation sessions</p>
+                    <div class="feature-meta">
+                        <span class="badge-new">NEW</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </div>
+
+                <div class="feature-card glassmorphism hover-lift" onclick="showPage('ai-therapist')">
+                    <div class="feature-glow"></div>
+                    <div class="feature-icon floating">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3>AI Therapist</h3>
+                    <p>24/7 mental health support</p>
+                    <div class="feature-meta">
+                        <span class="badge-ai">AI Powered</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </div>
+
+                <div class="feature-card glassmorphism hover-lift" onclick="showPage('sleep')">
+                    <div class="feature-glow"></div>
+                    <div class="feature-icon floating">
+                        <i class="fas fa-moon"></i>
+                    </div>
+                    <h3>Sleep Tracker</h3>
+                    <p>Monitor and improve sleep quality</p>
+                    <div class="feature-meta">
+                        <span class="last-used">7.5 hrs last night</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weekly Overview Chart -->
+            <div class="weekly-overview glassmorphism">
+                <h3>Weekly Wellness Overview</h3>
+                <div class="chart-container">
+                    <canvas id="weeklyOverviewChart"></canvas>
+                </div>
+                <div class="chart-legend">
+                    <div class="legend-item">
+                        <span class="legend-color" style="background: #6366f1"></span>
+                        Mood
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background: #10b981"></span>
+                        Energy
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background: #f59e0b"></span>
+                        Stress
+                    </div>
+                </div>
+            </div>
+
+            <!-- Achievements Section Enhanced -->
+            <div class="achievements-showcase glassmorphism">
+                <h3>Recent Achievements</h3>
+                <div class="achievement-carousel" id="achievementCarousel">
+                    <!-- Dynamic achievements will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+  <!-- Enhanced Mood Tracker with Emotion Wheel -->
+    <div class="mood-tracker page-section" style="display: none;">
+        <div class="container">
+            <div class="page-header">
+                <h2 class="page-title">Advanced Mood Tracking</h2>
+                <p class="page-subtitle">Explore your emotions with precision</p>
+            </div>
+
+            <!-- Emotion Wheel -->
+            <div class="emotion-wheel-container glassmorphism">
+                <h3>How are you feeling?</h3>
+                <div class="emotion-wheel" id="emotionWheel">
+                    <canvas id="emotionWheelCanvas" width="400" height="400"></canvas>
+                </div>
+                <div class="selected-emotion">
+                    <span id="selectedEmotionText">Click on the wheel to select</span>
+                </div>
+            </div>
+
+            <!-- Mood Intensity Slider -->
+            <div class="mood-intensity glassmorphism">
+                <h3>Intensity Level</h3>
+                <div class="intensity-slider">
+                    <input type="range" id="moodIntensity" min="1" max="10" value="5" 
+                           oninput="updateIntensityDisplay(this.value)">
+                    <div class="intensity-labels">
+                        <span>Mild</span>
+                        <span>Moderate</span>
+                        <span>Intense</span>
+                    </div>
+                </div>
+                <div class="intensity-value" id="intensityValue">5</div>
+            </div>
+
+            <!-- Enhanced Mood Factors -->
+            <div class="mood-factors-enhanced glassmorphism">
+                <h3>Contributing Factors</h3>
+                <div class="factor-categories">
+                    <div class="factor-category">
+                        <h4><i class="fas fa-user"></i> Personal</h4>
+                        <div class="factor-chips">
+                            <button class="factor-chip" onclick="app.toggleFactor('Relationships')">
+                                <i class="fas fa-heart"></i> Relationships
+                            </button>
+                            <button class="factor-chip" onclick="app.toggleFactor('Self-care')">
+                                <i class="fas fa-spa"></i> Self-care
+                            </button>
+                            <button class="factor-chip" onclick="app.toggleFactor('Achievement')">
+                                <i class="fas fa-trophy"></i> Achievement
+                            </button>
+                        </div>
+                    </div>
+                    <div class="factor-category">
+                        <h4><i class="fas fa-briefcase"></i> Environmental</h4>
+                        <div class="factor-chips">
+                            <button class="factor-chip" onclick="app.toggleFactor('Work')">
+                                <i class="fas fa-building"></i> Work
+                            </button>
+                            <button class="factor-chip" onclick="app.toggleFactor('Home')">
+                                <i class="fas fa-home"></i> Home
+                            </button>
+                            <button class="factor-chip" onclick="app.toggleFactor('Weather')">
+                                <i class="fas fa-cloud-sun"></i> Weather
+                            </button>
+                        </div>
+                    </div>
+                    <div class="factor-category">
+                        <h4><i class="fas fa-heartbeat"></i> Physical</h4>
+                        <div class="factor-chips">
+                            <button class="factor-chip" onclick="app.toggleFactor('Sleep')">
+                                <i class="fas fa-bed"></i> Sleep
+                            </button>
+                            <button class="factor-chip" onclick="app.toggleFactor('Exercise')">
+                                <i class="fas fa-running"></i> Exercise
+                            </button>
+                            <button class="factor-chip" onclick="app.toggleFactor('Nutrition')">
+                                <i class="fas fa-apple-alt"></i> Nutrition
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Voice Note Option -->
+            <div class="voice-note-section glassmorphism">
+                <h3>Express Yourself</h3>
+                <div class="input-options">
+                    <button class="input-option active" onclick="switchToText()">
+                        <i class="fas fa-keyboard"></i> Text
+                    </button>
+                    <button class="input-option" onclick="switchToVoice()">
+                        <i class="fas fa-microphone"></i> Voice
+                    </button>
+                </div>
+                <div class="text-input" id="textInput">
+                    <textarea id="moodNote" placeholder="Describe your feelings..." rows="4"></textarea>
+                </div>
+                <div class="voice-input" id="voiceInput" style="display: none;">
+                    <button class="voice-record-btn" onclick="toggleVoiceRecording()">
+                        <i class="fas fa-microphone"></i>
+                        <span>Hold to Record</span>
+                    </button>
+                    <div class="voice-visualization" id="voiceVisualization"></div>
+                </div>
+            </div>
+
+            <!-- Save Mood Button -->
+            <button class="btn btn-primary btn-large save-mood-btn" onclick="app.saveMood()">
+                <i class="fas fa-save"></i> Save Mood Entry
+            </button>
+
+            <!-- Recent Moods Timeline -->
+            <div class="recent-moods-timeline glassmorphism">
+                <h3>Recent Mood History</h3>
+                <div class="timeline" id="moodTimeline">
+                    <!-- Dynamic timeline entries -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Advanced Meditation Studio -->
+    <div class="meditation page-section" style="display: none;">
+        <div class="container">
+            <div class="page-header">
+                <h2 class="page-title">Meditation Studio</h2>
+                <p class="page-subtitle">Find your inner peace</p>
+            </div>
+
+            <!-- Meditation Categories -->
+            <div class="meditation-categories">
+                <button class="category-btn active" onclick="filterMeditations('all')">
+                    <i class="fas fa-infinity"></i> All
+                </button>
+                <button class="category-btn" onclick="filterMeditations('anxiety')">
+                    <i class="fas fa-cloud"></i> Anxiety Relief
+                </button>
+                <button class="category-btn" onclick="filterMeditations('sleep')">
+                    <i class="fas fa-moon"></i> Sleep
+                </button>
+                <button class="category-btn" onclick="filterMeditations('focus')">
+                    <i class="fas fa-brain"></i> Focus
+                </button>
+                <button class="category-btn" onclick="filterMeditations('energy')">
+                    <i class="fas fa-bolt"></i> Energy
+                </button>
+            </div>
+
+            <!-- Meditation Sessions Grid -->
+            <div class="meditation-grid">
+                <div class="meditation-card glassmorphism" data-category="anxiety">
+                    <div class="meditation-thumbnail">
+                        <img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=300" alt="Calm Waters">
+                        <div class="duration-badge">10 min</div>
+                    </div>
+                    <h4>Calm Waters</h4>
+                    <p>Gentle guidance for anxiety relief</p>
+                    <div class="meditation-meta">
+                        <span><i class="fas fa-headphones"></i> 2.3k plays</span>
+                        <button class="play-btn" onclick="startMeditation('calm-waters')">
+                            <i class="fas fa-play"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="meditation-card glassmorphism" data-category="sleep">
+                    <div class="meditation-thumbnail">
+                        <img src="https://images.unsplash.com/photo-1511295742362-92c96b1cf484?w=300" alt="Night Sky">
+                        <div class="duration-badge">20 min</div>
+                    </div>
+                    <h4>Peaceful Night</h4>
+                    <p>Drift into restful sleep</p>
+                    <div class="meditation-meta">
+                        <span><i class="fas fa-headphones"></i> 1.8k plays</span>
+                        <button class="play-btn" onclick="startMeditation('peaceful-night')">
+                            <i class="fas fa-play"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="meditation-card glassmorphism" data-category="focus">
+                    <div class="meditation-thumbnail">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300" alt="Mountain Peak">
+                        <div class="duration-badge">15 min</div>
+                    </div>
+                    <h4>Laser Focus</h4>
+                    <p>Enhance concentration and clarity</p>
+                    <div class="meditation-meta">
+                        <span><i class="fas fa-headphones"></i> 3.1k plays</span>
+                        <button class="play-btn" onclick="startMeditation('laser-focus')">
+                            <i class="fas fa-play"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Meditation Player -->
+            <div class="meditation-player glassmorphism" id="meditationPlayer" style="display: none;">
+                <div class="player-header">
+                    <button class="close-player" onclick="closeMeditationPlayer()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <h3 id="currentMeditationTitle">Calm Waters</h3>
+                </div>
+                <div class="player-visual">
+                    <div class="breathing-orb" id="breathingOrb"></div>
+                    <div class="player-time">
+                        <span id="currentTime">0:00</span> / <span id="totalTime">10:00</span>
+                    </div>
+                </div>
+                <div class="player-controls">
+                    <button onclick="skipBackward()"><i class="fas fa-backward"></i></button>
+                    <button class="play-pause" onclick="togglePlayPause()">
+                        <i class="fas fa-pause" id="playPauseIcon"></i>
+                    </button>
+                    <button onclick="skipForward()"><i class="fas fa-forward"></i></button>
+                </div>
+                <div class="player-progress">
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="meditationProgress"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Therapist Chat -->
+    <div class="ai-therapist page-section" style="display: none;">
+        <div class="container">
+            <div class="page-header">
+                <h2 class="page-title">AI Mental Health Assistant</h2>
+                <p class="page-subtitle">24/7 support powered by advanced AI</p>
+            </div>
+
+            <div class="chat-container glassmorphism">
+                <div class="chat-header">
+                    <div class="ai-status">
+                        <div class="status-indicator online"></div>
+                        <span>Dr. Mind is online</span>
+                    </div>
+                    <button class="chat-options" onclick="toggleChatOptions()">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                </div>
+
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message ai-message">
+                        <div class="message-avatar">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="message-content">
+                            <p>Hello! I'm Dr. Mind, your AI mental health assistant. I'm here to listen and support you. How are you feeling today?</p>
+                            <div class="quick-responses">
+                                <button onclick="sendQuickResponse('I\'m feeling anxious')">I'm feeling anxious</button>
+                                <button onclick="sendQuickResponse('I need someone to talk to')">I need someone to talk to</button>
+                                <button onclick="sendQuickResponse('I\'m doing okay')">I'm doing okay</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-input-container">
+                    <div class="typing-indicator" id="typingIndicator" style="display: none;">
+                        <span></span><span></span><span></span>
+                    </div>
+                    <div class="chat-input">
+                        <textarea id="chatInput" placeholder="Type your message..." rows="1"></textarea>
+                        <button class="send-btn" onclick="sendMessage()">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ai-disclaimer glassmorphism">
+                <i class="fas fa-info-circle"></i>
+                <p>This AI assistant provides support but is not a replacement for professional mental health care. If you're in crisis, please contact emergency services or a mental health professional.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Community Support -->
+    <div class="community page-section" style="display: none;">
+        <div class="container">
+            <div class="page-header">
+                <h2 class="page-title">Community Support</h2>
+                <p class="page-subtitle">Connect with others on their wellness journey</p>
+            </div>
+
+            <!-- Community Stats -->
+            <div class="community-stats">
+                <div class="stat-item glassmorphism">
+                    <i class="fas fa-users"></i>
+                    <h3>2,847</h3>
+                    <p>Active Members</p>
+                </div>
+                <div class="stat-item glassmorphism">
+                    <i class="fas fa-comments"></i>
+                    <h3>156</h3>
+                    <p>Discussions Today</p>
+                </div>
+                <div class="stat-item glassmorphism">
+                    <i class="fas fa-heart"></i>
+                    <h3>98%</h3>
+                    <p>Support Rate</p>
+                </div>
+            </div>
+
+            <!-- Discussion Forums -->
+            <div class="forums-section glassmorphism">
+                <h3>Popular Discussions</h3>
+                <div class="forum-list">
+                    <div class="forum-item">
+                        <div class="forum-icon">
+                            <i class="fas fa-seedling"></i>
+                        </div>
+                        <div class="forum-content">
+                            <h4>Daily Check-ins</h4>
+                            <p>Share your daily wins and challenges</p>
+                            <div class="forum-meta">
+                                <span><i class="fas fa-users"></i> 342 members</span>
+                                <span><i class="fas fa-comment"></i> 28 new posts</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="forum-item">
+                        <div class="forum-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <div class="forum-content">
+                            <h4>Anxiety Support</h4>
+                            <p>Tips and support for managing anxiety</p>
+                            <div class="forum-meta">
+                                <span><i class="fas fa-users"></i> 567 members</span>
+                                <span><i class="fas fa-comment"></i> 15 new posts</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="forum-item">
+                        <div class="forum-icon">
+                            <i class="fas fa-moon"></i>
+                        </div>
+                        <div class="forum-content">
+                            <h4>Sleep & Recovery</h4>
+                            <p>Improve your sleep quality together</p>
+                            <div class="forum-meta">
+                                <span><i class="fas fa-users"></i> 423 members</span>
+                                <span><i class="fas fa-comment"></i> 12 new posts</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Success Stories -->
+            <div class="success-stories glassmorphism">
+                <h3>Success Stories</h3>
+                <div class="story-carousel">
+                    <div class="story-card">
+                        <div class="story-header">
+                            <img src="https://ui-avatars.com/api/?name=Sarah+M&background=6366f1&color=fff" alt="User">
+                            <div>
+                                <h4>Sarah M.</h4>
+                                <span>30-day streak</span>
+                            </div>
+                        </div>
+                        <p>"MindfulMe helped me understand my anxiety patterns and develop healthy coping strategies. I feel more in control now!"</p>
+                        <div class="story-stats">
+                            <span><i class="fas fa-heart"></i> 234</span>
+                            <span><i class="fas fa-comment"></i> 45</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Journal with AI Analysis -->
+    <div class="journal page-section" style="display: none;">
+        <div class="container">
+            <div class="page-header">
+                <h2 class="page-title">Smart Journal</h2>
+                <p class="page-subtitle">AI-powered journaling for deeper insights</p>
+            </div>
+
+            <!-- Journal Dashboard -->
+            <div class="journal-dashboard">
+                <div class="journal-stat glassmorphism">
+                    <i class="fas fa-fire"></i>
+                    <h3 id="journalStreak">5</h3>
+                    <p>Day Streak</p>
+                </div>
+                <div class="journal-stat glassmorphism">
+                    <i class="fas fa-book"></i>
+                    <h3 id="totalWords">2,450</h3>
+                    <p>Total Words</p>
+                </div>
+                <div class="journal-stat glassmorphism">
+                    <i class="fas fa-lightbulb"></i>
+                    <h3 id="insightsFound">12</h3>
+                    <p>Insights Found</p>
+                </div>
+                <div class="journal-stat glassmorphism">
+                    <i class="fas fa-smile"></i>
+                    <h3 id="sentimentScore">78%</h3>
+                    <p>Positivity Score</p>
+                </div>
+            </div>
+
+            <!-- Enhanced Journal Editor -->
+            <div class="journal-editor-enhanced glassmorphism">
+                <div class="editor-toolbar">
+                    <button class="tool-btn" onclick="formatText('bold')">
+                        <i class="fas fa-bold"></i>
+                    </button>
+                    <button class="tool-btn" onclick="formatText('italic')">
+                        <i class="fas fa-italic"></i>
+                    </button>
+                    <button class="tool-btn" onclick="formatText('underline')">
+                        <i class="fas fa-underline"></i>
+                    </button>
+                    <div class="separator"></div>
+                    <button class="tool-btn" onclick="insertEmoji()">
+                        <i class="fas fa-smile"></i>
+                    </button>
+                    <button class="tool-btn" onclick="toggleVoiceToText()">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <div class="separator"></div>
+                    <select class="mood-select" onchange="setJournalMood(this.value)">
+                        <option value="">Mood...</option>
+                        <option value="happy">😊 Happy</option>
+                        <option value="sad">😢 Sad</option>
+                        <option value="anxious">😰 Anxious</option>
+                        <option value="excited">🎉 Excited</option>
+                        <option value="peaceful">😌 Peaceful</option>
+                    </select>
+                </div>
+
+                <div class="writing-prompts" id="writingPrompts">
+                    <h4>Today's Prompts</h4>
+                    <div class="prompt-cards">
+                        <div class="prompt-card" onclick="usePrompt(this)">
+                            <i class="fas fa-sun"></i>
+                            <p>What brought you joy today?</p>
+                        </div>
+                        <div class="prompt-card" onclick="usePrompt(this)">
+                            <i class="fas fa-mountain"></i>
+                            <p>What challenge did you overcome?</p>
+                        </div>
+                        <div class="prompt-card" onclick="usePrompt(this)">
+                            <i class="fas fa-heart"></i>
+                            <p>What are you grateful for?</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="journal-content-area">
+                    <div class="journal-date">
+                        <i class="fas fa-calendar"></i>
+                        <span id="journalDate"></span>
+                    </div>
+                    <div contenteditable="true" class="journal-editor" id="journalEditor" 
+                         placeholder="Start writing your thoughts..."></div>
+                </div>
+
+                <div class="journal-footer">
+                    <div class="word-stats">
+                        <span id="wordCount">0</span> words • 
+                        <span id="charCount">0</span> characters • 
+                        <span id="readTime">0</span> min read
+                    </div>
+                    <div class="journal-actions">
+                        <button class="btn btn-secondary" onclick="saveDraft()">
+                            <i class="fas fa-save"></i> Save Draft
+                        </button>
+                        <button class="btn btn-primary" onclick="analyzeAndSave()">
+                            <i class="fas fa-magic"></i> Analyze & Save
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Analysis Results -->
+            <div class="ai-analysis glassmorphism" id="aiAnalysis" style="display: none;">
+                <h3>AI Journal Analysis</h3>
+                <div class="analysis-content">
+                    <div class="sentiment-analysis">
+                        <h4>Emotional Tone</h4>
+                        <div class="sentiment-meter">
+                            <div class="sentiment-fill" id="sentimentFill"></div>
+                        </div>
+                        <p id="sentimentText"></p>
+                    </div>
+                    <div class="key-themes">
+                        <h4>Key Themes</h4>
+                        <div class="theme-tags" id="themeTags"></div>
+                    </div>
+                    <div class="ai-suggestions">
+                        <h4>Suggestions</h4>
+                        <div class="suggestion-list" id="suggestionList"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Journal History -->
+            <div class="journal-history glassmorphism">
+                <h3>Recent Entries</h3>
+                <div class="history-filter">
+                    <button class="filter-btn active" onclick="filterJournals('all')">All</button>
+                    <button class="filter-btn" onclick="filterJournals('positive')">Positive</button>
+                    <button class="filter-btn" onclick="filterJournals('negative')">Challenging</button>
+                    <button class="filter-btn" onclick="filterJournals('insights')">With Insights</button>
+                </div>
+                <div class="journal-timeline" id="journalTimeline">
+                    <!-- Dynamic journal entries -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Advanced Analytics & Insights -->
+    <div class="insights page-section" style="display: none;">
+        <div class="container">
+            <div class="page-header">
+                <h2 class="page-title">Advanced Analytics</h2>
+                <p class="page-subtitle">Deep insights into your mental wellness journey</p>
+            </div>
+
+            <!-- Time Period Selector -->
+            <div class="time-period-selector glassmorphism">
+                <button class="period-btn" onclick="changePeriod('week')">Week</button>
+                <button class="period-btn active" onclick="changePeriod('month')">Month</button>
+                <button class="period-btn" onclick="changePeriod('year')">Year</button>
+                <button class="period-btn" onclick="showCustomDateRange()">Custom</button>
+            </div>
+
+            <!-- Analytics Dashboard -->
+            <div class="analytics-grid">
+                <!-- Mood Patterns -->
+                <div class="analytics-card glassmorphism">
+                    <h3>Mood Patterns</h3>
+                    <div class="chart-container">
+                        <canvas id="moodPatternsChart"></canvas>
+                    </div>
+                    <div class="pattern-insights">
+                        <p><i class="fas fa-info-circle"></i> Your mood tends to be highest on <strong>Fridays</strong></p>
+                    </div>
+                </div>
+
+                <!-- Correlation Analysis -->
+                <div class="analytics-card glassmorphism">
+                    <h3>Factor Correlations</h3>
+                    <div class="correlation-matrix" id="correlationMatrix">
+                        <!-- Dynamic correlation visualization -->
+                    </div>
+                    <div class="correlation-insights">
+                        <p><i class="fas fa-chart-line"></i> Sleep quality shows strongest correlation with mood</p>
+                    </div>
+                </div>
+
+                <!-- Wellness Score -->
+                <div class="analytics-card glassmorphism">
+                    <h3>Wellness Score Trend</h3>
+                    <div class="wellness-score-display">
+                        <div class="score-circle">
+                            <svg viewBox="0 0 200 200">
+                                <circle cx="100" cy="100" r="90" class="score-bg"/>
+                                <circle cx="100" cy="100" r="90" class="score-progress" 
+                                        stroke-dasharray="565" stroke-dashoffset="113"/>
+                            </svg>
+                            <div class="score-text">
+                                <span class="score-value">82</span>
+                                <span class="score-label">Wellness Score</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="score-breakdown">
+                        <div class="breakdown-item">
+                            <span>Mood</span>
+                            <div class="mini-progress">
+                                <div class="progress-fill" style="width: 75%"></div>
+                            </div>
+                        </div>
+                        <div class="breakdown-item">
+                            <span>Activity</span>
+                            <div class="mini-progress">
+                                <div class="progress-fill" style="width: 90%"></div>
+                            </div>
+                        </div>
+                        <div class="breakdown-item">
+                            <span>Sleep</span>
+                            <div class="mini-progress">
+                                <div class="progress-fill" style="width: 85%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Predictive Insights -->
+                <div class="analytics-card glassmorphism">
+                    <h3>AI Predictions</h3>
+                    <div class="predictions">
+                        <div class="prediction-item">
+                            <i class="fas fa-chart-line"></i>
+                            <div>
+                                <h4>Next Week Outlook</h4>
+                                <p>Based on patterns, you're likely to feel more energetic</p>
+                            </div>
+                        </div>
+                        <div class="prediction-item">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <div>
+                                <h4>Watch Out</h4>
+                                <p>Low sleep quality detected - consider adjusting bedtime</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Reports -->
+            <div class="detailed-reports glassmorphism">
+                <h3>Generate Reports</h3>
+                <div class="report-options">
+                    <button class="report-btn" onclick="generateReport('monthly')">
+                        <i class="fas fa-file-pdf"></i>
+                        Monthly Summary
+                    </button>
+                    <button class="report-btn" onclick="generateReport('patterns')">
+                        <i class="fas fa-brain"></i>
+                        Pattern Analysis
+                    </button>
+                    <button class="report-btn" onclick="generateReport('progress')">
+                        <i class="fas fa-chart-line"></i>
+                        Progress Report
+                    </button>
+                    <button class="report-btn" onclick="shareWithTherapist()">
+                        <i class="fas fa-share"></i>
+                        Share with Therapist
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Breathing Exercises -->
+    <div class="breathing-exercise page-section" style="display: none;">
+        <div class="container">
+            <div class="page-header">
+                <h2 class="page-title">Breathing Studio</h2>
+                <p class="page-subtitle">Science-based breathing exercises</p>
+            </div>
+
+            <!-- Breathing Exercise Selection -->
+            <div class="breathing-selection">
+                <div class="exercise-card glassmorphism" onclick="startBreathingExercise('coherent')">
+                    <div class="exercise-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h3>Coherent Breathing</h3>
+                    <p>5-5 pattern for heart coherence</p>
+                    <div class="exercise-benefits">
+                        <span class="benefit-tag">Stress Relief</span>
+                        <span class="benefit-tag">Heart Health</span>
+                    </div>
+                </div>
+
+                <div class="exercise-card glassmorphism" onclick="startBreathingExercise('wim-hof')">
+                    <div class="exercise-icon">
+                        <i class="fas fa-snowflake"></i>
+                    </div>
+                    <h3>Wim Hof Method</h3>
+                    <p>Power breathing for energy</p>
+                    <div class="exercise-benefits">
+                        <span class="benefit-tag">Energy Boost</span>
+                        <span class="benefit-tag">Immune Support</span>
+                    </div>
+                </div>
+
+                <div class="exercise-card glassmorphism" onclick="startBreathingExercise('pranayama')">
+                    <div class="exercise-icon">
+                        <i class="fas fa-om"></i>
+                    </div>
+                    <h3>Pranayama</h3>
+                    <p>Ancient yogic breathing</p>
+                    <div class="exercise-benefits">
+                        <span class="benefit-tag">Balance</span>
+                        <span class="benefit-tag">Clarity</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advanced Breathing Interface -->
+            <div class="breathing-interface glassmorphism" id="breathingInterface" style="display: none;">
+                <div class="breathing-header">
+                    <button class="back-btn" onclick="backToBreathingSelection()">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <h3 id="breathingTitle">Coherent Breathing</h3>
+                </div>
+
+                <div class="breathing-visualization">
+                    <div class="breath-circle-container">
+                        <svg class="breath-svg" viewBox="0 0 400 400">
+                            <circle cx="200" cy="200" r="180" class="breath-track"/>
+                            <circle cx="200" cy="200" r="180" class="breath-progress"/>
+                        </svg>
+                        <div class="breath-center">
+                            <span class="breath-phase" id="breathPhase">Get Ready</span>
+                            <span class="breath-count" id="breathCount">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="breathing-metrics">
+                    <div class="metric">
+                        <i class="fas fa-lungs"></i>
+                        <span id="breathsPerMinute">0</span>
+                        <label>Breaths/min</label>
+                    </div>
+                    <div class="metric">
+                        <i class="fas fa-heart"></i>
+                        <span id="heartCoherence">0%</span>
+                        <label>Coherence</label>
+                    </div>
+                    <div class="metric">
+                        <i class="fas fa-clock"></i>
+                        <span id="sessionDuration">0:00</span>
+                        <label>Duration</label>
+                    </div>
+                </div>
+
+                <div class="breathing-controls">
+                    <button class="control-btn" onclick="toggleBreathing()">
+                        <i class="fas fa-play" id="breathingPlayPause"></i>
+                    </button>
+                    <input type="range" class="speed-slider" min="0.5" max="2" step="0.1" value="1" 
+                           onchange="adjustBreathingSpeed(this.value)">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sleep Tracker -->
+    <div class="sleep page-section" style="display: none;">
+        <div class="container">
+            <div class="page-header">
+                <h2 class="page-title">Sleep Tracker</h2>
+                <p class="page-subtitle">Optimize your sleep for better mental health</p>
+            </div>
+
+            <!-- Sleep Dashboard -->
+            <div class="sleep-dashboard">
+                <div class="sleep-score glassmorphism">
+                    <h3>Last Night's Sleep</h3>
+                    <div class="sleep-score-visual">
+                        <div class="score-ring">
+                            <svg viewBox="0 0 200 200">
+                                <circle cx="100" cy="100" r="90" class="ring-bg"/>
+                                <circle cx="100" cy="100" r="90" class="ring-progress" 
+                                        stroke-dasharray="565" stroke-dashoffset="141"/>
+                            </svg>
+                            <div class="ring-content">
+                                <span class="hours">7.5</span>
+                                <span class="label">hours</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sleep-quality">
+                        <span>Sleep Quality: </span>
+                        <span class="quality-score">Good</span>
+                    </div>
+                </div>
+
+                <div class="sleep-stats glassmorphism">
+                    <div class="stat">
+                        <i class="fas fa-bed"></i>
+                        <span>10:30 PM</span>
+                        <label>Bedtime</label>
+                    </div>
+                    <div class="stat">
+                        <i class="fas fa-sun"></i>
+                        <span>6:00 AM</span>
+                        <label>Wake Time</label>
+                    </div>
+                    <div class="stat">
+                        <i class="fas fa-moon"></i>
+                        <span>23 min</span>
+                        <label>Deep Sleep</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sleep Log -->
+            <div class="sleep-log glassmorphism">
+                <h3>Log Tonight's Sleep</h3>
+                <div class="sleep-input-grid">
+                    <div class="input-group">
+                        <label>Bedtime</label>
+                        <input type="time" id="bedtime" value="22:30">
+                    </div>
+                    <div class="input-group">
+                        <label>Wake Time</label>
+                        <input type="time" id="wakeTime" value="06:00">
+                    </div>
+                    <div class="input-group">
+                        <label>Sleep Quality</label>
+                        <select id="sleepQuality">
+                            <option value="excellent">Excellent</option>
+                            <option value="good">Good</option>
+                            <option value="fair">Fair</option>
+                            <option value="poor">Poor</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Dreams?</label>
+                        <select id="dreams">
+                            <option value="none">None</option>
+                            <option value="pleasant">Pleasant</option>
+                            <option value="neutral">Neutral</option>
+                            <option value="nightmares">Nightmares</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="logSleep()">
+                    <i class="fas fa-save"></i> Log Sleep
+                </button>
+            </div>
+
+            <!-- Sleep Insights -->
+            <div class="sleep-insights glassmorphism">
+                <h3>Sleep Insights</h3>
+                <div class="insight-cards">
+                    <div class="insight-card">
+                        <i class="fas fa-chart-line"></i>
+                        <h4>7-Day Average</h4>
+                        <p>6.8 hours per night</p>
+                    </div>
+                    <div class="insight-card">
+                        <i class="fas fa-trophy"></i>
+                        <h4>Best Night</h4>
+                        <p>Tuesday - 8.2 hours</p>
+                    </div>
+                    <div class="insight-card">
+                        <i class="fas fa-lightbulb"></i>
+                        <h4>Recommendation</h4>
+                        <p>Try going to bed 30 min earlier</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings & Profile -->
+    <div class="profile-dropdown" id="profileDropdown">
+        <div class="profile-header">
+            <img src="https://ui-avatars.com/api/?name=User&background=6366f1&color=fff" alt="User">
+            <div>
+                <h4>Welcome User</h4>
+                <p>user@example.com</p>
+            </div>
+        </div>
+        <div class="profile-menu">
+            <a href="#" onclick="showSettings()">
+                <i class="fas fa-cog"></i> Settings
+            </a>
+            <a href="#" onclick="showPrivacy()">
+                <i class="fas fa-lock"></i> Privacy
+            </a>
+            <a href="#" onclick="exportAllData()">
+                <i class="fas fa-download"></i> Export Data
+            </a>
+            <a href="#" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Processing...</p>
+        </div>
+    </div>
+
+    <!-- Success/Error Messages -->
+    <div class="message-toast" id="messageToast"></div>
+
+    <!-- Main App Script -->
+    <script src="js/app.js"></script>
+</body>
+</html>
+
+                      

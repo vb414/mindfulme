@@ -1308,4 +1308,815 @@ class MindfulMeProApp {
             const last7Days = this.data.sleepLogs.slice(-7);
             const avgDuration = last7Days.reduce((sum, log) => sum + log.duration, 0) / last7Days.length;
             
-            const avgElement = document.getElementById('
+            const avgElement = document.getElementById('avgSleepDuration');
+            if (avgElement) {
+                avgElement.textContent = avgDuration.toFixed(1) + ' hours';
+            }
+        }
+    }
+
+    // Analytics functions
+    changePeriod(period) {
+        this.currentAnalyticsPeriod = period;
+        this.updateAnalyticsCharts();
+        
+        // Update UI
+        document.querySelectorAll('.period-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        event.target.classList.add('active');
+    }
+
+    // Update analytics charts based on period
+    updateAnalyticsCharts() {
+        this.updateMoodPatternsChart();
+        this.updateCorrelationMatrix();
+        this.updateWellnessScoreTrend();
+        this.generatePredictions();
+    }
+
+    // Update mood patterns chart
+    updateMoodPatternsChart() {
+        const canvas = document.getElementById('moodPatternsChart');
+        if (!canvas || !Chart) return;
+
+        const ctx = canvas.getContext('2d');
+        const data = this.getMoodPatternData();
+
+        // Destroy existing chart if any
+        if (this.moodPatternsChartInstance) {
+            this.moodPatternsChartInstance.destroy();
+        }
+
+        this.moodPatternsChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    label: 'Mood Intensity',
+                    data: data.values,
+                    borderColor: '#6366f1',
+                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#6366f1',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `Intensity: ${context.parsed.y}/10`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 10,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.05)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.05)'
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Get mood pattern data based on period
+    getMoodPatternData() {
+        const period = this.currentAnalyticsPeriod || 'month';
+        const now = new Date();
+        let startDate = new Date();
+        let labels = [];
+        let values = [];
+
+        switch(period) {
+            case 'week':
+                startDate.setDate(now.getDate() - 7);
+                for (let i = 0; i < 7; i++) {
+                    const date = new Date(startDate);
+                    date.setDate(startDate.getDate() + i);
+                    labels.push(date.toLocaleDateString('en-US', { weekday: 'short' }));
+                    
+                    // Get mood for this day
+                    const dayMoods = this.data.moods.filter(mood => {
+                        const moodDate = new Date(mood.date);
+                        return moodDate.toDateString() === date.toDateString();
+                    });
+                    
+                    const avgIntensity = dayMoods.length > 0
+                        ? dayMoods.reduce((sum, m) => sum + (m.intensity || 5), 0) / dayMoods.length
+                        : null;
+                    
+                    values.push(avgIntensity);
+                }
+                break;
+                
+            case 'month':
+                startDate.setMonth(now.getMonth() - 1);
+                // Weekly averages for the month
+                for (let week = 0; week < 4; week++) {
+                    const weekStart = new Date(startDate);
+                    weekStart.setDate(startDate.getDate() + (week * 7));
+                    labels.push(`Week ${week + 1}`);
+                    
+                    const weekMoods = this.data.moods.filter(mood => {
+                        const moodDate = new Date(mood.date);
+                        const weekEnd = new Date(weekStart);
+                        weekEnd.setDate(weekStart.getDate() + 7);
+                        return moodDate >= weekStart && moodDate < weekEnd;
+                    });
+                    
+                    const avgIntensity = weekMoods.length > 0
+                        ? weekMoods.reduce((sum, m) => sum + (m.intensity || 5), 0) / weekMoods.length
+                        : null;
+                    
+                    values.push(avgIntensity);
+                }
+                break;
+                
+            case 'year':
+                // Monthly averages for the year
+                for (let month = 0; month < 12; month++) {
+                    const monthDate = new Date(now.getFullYear(), month, 1);
+                    labels.push(monthDate.toLocaleDateString('en-US', { month: 'short' }));
+                    
+                    const monthMoods = this.data.moods.filter(mood => {
+                        const moodDate = new Date(mood.date);
+                        return moodDate.getMonth() === month && moodDate.getFullYear() === now.getFullYear();
+                    });
+                    
+                    const avgIntensity = monthMoods.length > 0
+                        ? monthMoods.reduce((sum, m) => sum + (m.intensity || 5), 0) / monthMoods.length
+                        : null;
+                    
+                    values.push(avgIntensity);
+                }
+                break;
+        }
+
+        return { labels, values };
+    }
+
+    // Update correlation matrix
+    updateCorrelationMatrix() {
+        const container = document.getElementById('correlationMatrix');
+        if (!container) return;
+
+        const factors = ['Sleep', 'Exercise', 'Social', 'Work', 'Stress'];
+        const correlations = this.calculateCorrelations(factors);
+
+        // Create visual matrix
+        let html = '<div class="correlation-grid">';
+        
+        // Headers
+        html += '<div></div>'; // Empty corner
+        factors.forEach(factor => {
+            html += `<div class="matrix-header">${factor}</div>`;
+        });
+
+        // Rows
+        factors.forEach((factor1, i) => {
+            html += `<div class="matrix-header">${factor1}</div>`;
+            factors.forEach((factor2, j) => {
+                const correlation = correlations[i][j];
+                const intensity = Math.abs(correlation);
+                const color = correlation > 0 ? '#10b981' : '#ef4444';
+                
+                html += `
+                    <div class="correlation-cell" 
+                         style="background: ${color}; opacity: ${intensity}"
+                         title="${factor1} vs ${factor2}: ${(correlation * 100).toFixed(0)}%">
+                    </div>
+                `;
+            });
+        });
+
+        html += '</div>';
+        container.innerHTML = html;
+    }
+
+    // Calculate correlations between factors
+    calculateCorrelations(factors) {
+        const matrix = [];
+        
+        for (let i = 0; i < factors.length; i++) {
+            matrix[i] = [];
+            for (let j = 0; j < factors.length; j++) {
+                if (i === j) {
+                    matrix[i][j] = 1;
+                } else {
+                    // Simplified correlation calculation
+                    const moodsWithFactor1 = this.data.moods.filter(m => m.factors.includes(factors[i]));
+                    const moodsWithFactor2 = this.data.moods.filter(m => m.factors.includes(factors[j]));
+                    const moodsWithBoth = this.data.moods.filter(m => 
+                        m.factors.includes(factors[i]) && m.factors.includes(factors[j])
+                    );
+                    
+                    const correlation = moodsWithBoth.length / 
+                        Math.sqrt(moodsWithFactor1.length * moodsWithFactor2.length) || 0;
+                    
+                    matrix[i][j] = correlation;
+                }
+            }
+        }
+        
+        return matrix;
+    }
+
+    // Update wellness score trend
+    updateWellnessScoreTrend() {
+        // Update visual wellness score
+        const scoreElement = document.querySelector('.score-value');
+        if (scoreElement) {
+            scoreElement.textContent = this.wellnessScore;
+        }
+
+        // Update progress ring
+        const progressRing = document.querySelector('.score-progress');
+        if (progressRing) {
+            const circumference = 2 * Math.PI * 90;
+            const offset = circumference - (this.wellnessScore / 100) * circumference;
+            progressRing.style.strokeDashoffset = offset;
+        }
+
+        // Update breakdown
+        this.updateWellnessBreakdown();
+    }
+
+    // Update wellness breakdown
+    updateWellnessBreakdown() {
+        const breakdowns = {
+            'Mood': (this.calculateMoodScore() / 30) * 100,
+            'Activity': (this.calculateActivityScore() / 20) * 100,
+            'Sleep': (this.calculateSleepScore() / 20) * 100
+        };
+
+        Object.entries(breakdowns).forEach(([category, percentage]) => {
+            const element = document.querySelector(`[data-category="${category}"] .progress-fill`);
+            if (element) {
+                element.style.width = `${percentage}%`;
+            }
+        });
+    }
+
+    // Calculate individual scores
+    calculateMoodScore() {
+        if (this.data.moods.length === 0) return 0;
+        
+        const recentMoods = this.data.moods.slice(-7);
+        const avgIntensity = recentMoods.reduce((sum, m) => sum + (m.intensity || 5), 0) / recentMoods.length;
+        return (avgIntensity / 10) * 30;
+    }
+
+    calculateActivityScore() {
+        const recentActivities = this.getRecentActivities(7);
+        return Math.min(recentActivities.length / 7, 1) * 20;
+    }
+
+    calculateSleepScore() {
+        if (!this.data.sleepLogs || this.data.sleepLogs.length === 0) return 0;
+        
+        const recentSleep = this.data.sleepLogs.slice(-7);
+        const avgQuality = recentSleep.reduce((sum, s) => {
+            const quality = { excellent: 4, good: 3, fair: 2, poor: 1 };
+            return sum + (quality[s.quality] || 2);
+        }, 0) / recentSleep.length;
+        
+        return (avgQuality / 4) * 20;
+    }
+
+    // Generate AI predictions
+    generatePredictions() {
+        const predictions = [];
+
+        // Analyze recent patterns
+        if (this.data.moods.length >= 14) {
+            const recentMoods = this.data.moods.slice(-14);
+            const firstWeek = recentMoods.slice(0, 7);
+            const secondWeek = recentMoods.slice(7);
+            
+            const firstWeekAvg = firstWeek.reduce((sum, m) => sum + (m.intensity || 5), 0) / firstWeek.length;
+            const secondWeekAvg = secondWeek.reduce((sum, m) => sum + (m.intensity || 5), 0) / secondWeek.length;
+            
+            if (secondWeekAvg > firstWeekAvg) {
+                predictions.push({
+                    icon: 'fas fa-chart-line',
+                    title: 'Positive Trend',
+                    text: 'Your mood has been improving! Keep up the good habits.'
+                });
+            }
+        }
+
+        // Sleep pattern analysis
+        if (this.data.sleepLogs && this.data.sleepLogs.length >= 7) {
+            const avgSleepDuration = this.data.sleepLogs.slice(-7)
+                .reduce((sum, log) => sum + log.duration, 0) / 7;
+            
+            if (avgSleepDuration < 7) {
+                predictions.push({
+                    icon: 'fas fa-exclamation-triangle',
+                    title: 'Sleep Alert',
+                    text: 'Your average sleep is below recommended. Try going to bed 30 minutes earlier.'
+                });
+            }
+        }
+
+        // Update UI
+        const predictionsContainer = document.querySelector('.predictions');
+        if (predictionsContainer && predictions.length > 0) {
+            predictionsContainer.innerHTML = predictions.map(pred => `
+                <div class="prediction-item">
+                    <i class="${pred.icon}"></i>
+                    <div>
+                        <h4>${pred.title}</h4>
+                        <p>${pred.text}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+    }
+
+    // Generate reports
+    async generateReport(type) {
+        this.showLoading(true);
+        
+        const reportData = {
+            type: type,
+            generatedDate: new Date().toISOString(),
+            period: this.currentAnalyticsPeriod || 'month',
+            data: {}
+        };
+
+        switch(type) {
+            case 'monthly':
+                reportData.data = this.generateMonthlyReportData();
+                break;
+            case 'patterns':
+                reportData.data = this.generatePatternsReportData();
+                break;
+            case 'progress':
+                reportData.data = this.generateProgressReportData();
+                break;
+        }
+
+        // In a real app, you would generate a PDF here
+        this.showMessage(`${type.charAt(0).toUpperCase() + type.slice(1)} report generated! Check your downloads.`, 'success');
+        
+        this.showLoading(false);
+    }
+
+    // Generate monthly report data
+    generateMonthlyReportData() {
+        const now = new Date();
+        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+        
+        const monthData = {
+            moodEntries: this.data.moods.filter(m => new Date(m.date) >= monthStart).length,
+            journalEntries: this.data.journals.filter(j => new Date(j.date) >= monthStart).length,
+            breathingSessions: this.data.breathingSessions.filter(b => new Date(b.date) >= monthStart).length,
+            averageMood: 0,
+            topFactors: [],
+            insights: []
+        };
+
+        // Calculate average mood
+        const monthMoods = this.data.moods.filter(m => new Date(m.date) >= monthStart);
+        if (monthMoods.length > 0) {
+            monthData.averageMood = monthMoods.reduce((sum, m) => sum + (m.intensity || 5), 0) / monthMoods.length;
+        }
+
+        return monthData;
+    }
+
+    // Share with therapist functionality
+    shareWithTherapist() {
+        const therapistEmail = prompt('Enter your therapist\'s email address:');
+        if (!therapistEmail) return;
+
+        // Validate email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(therapistEmail)) {
+            this.showMessage('Please enter a valid email address', 'error');
+            return;
+        }
+
+        // In a real app, this would send an encrypted report
+        this.showMessage(`Report will be securely shared with ${therapistEmail}`, 'success');
+        
+        // Log the share
+        this.data.therapistShares = this.data.therapistShares || [];
+        this.data.therapistShares.push({
+            email: therapistEmail,
+            date: new Date().toISOString(),
+            reportType: 'comprehensive'
+        });
+        this.saveData();
+    }
+
+    // Notification system
+    checkNotifications() {
+        const notifications = [];
+        
+        // Check for mood reminder
+        const lastMood = this.data.moods[this.data.moods.length - 1];
+        if (!lastMood || this.hoursSince(new Date(lastMood.date)) > 24) {
+            notifications.push({
+                icon: 'fas fa-smile',
+                title: 'Mood Check-in',
+                message: 'Time for your daily mood check-in',
+                action: () => showPage('mood')
+            });
+        }
+
+        // Check for streak milestone
+        if (this.data.streak % 7 === 0 && this.data.streak > 0) {
+            notifications.push({
+                icon: 'fas fa-fire',
+                title: 'Streak Milestone!',
+                message: `Amazing! ${this.data.streak} day streak!`,
+                action: () => showPage('home')
+            });
+        }
+
+        // Update notification count
+        const notificationCount = document.getElementById('notificationCount');
+        if (notificationCount) {
+            notificationCount.textContent = notifications.length;
+            notificationCount.style.display = notifications.length > 0 ? 'block' : 'none';
+        }
+
+        this.currentNotifications = notifications;
+    }
+
+    // Setup mood reminders
+    setupMoodReminders() {
+        // Check if it's time for a reminder
+        const reminderTime = this.data.preferences.reminderTime;
+        if (!reminderTime) return;
+
+        const checkReminder = () => {
+            const now = new Date();
+            const [hour, minute] = reminderTime.split(':');
+            const reminderDate = new Date();
+            reminderDate.setHours(hour, minute, 0, 0);
+
+            if (now.getHours() === parseInt(hour) && now.getMinutes() === parseInt(minute)) {
+                this.showNotification('Time for your mood check-in!', {
+                    body: 'Take a moment to reflect on how you\'re feeling',
+                    icon: '/icon-192.png'
+                });
+            }
+        };
+
+        // Check every minute
+        setInterval(checkReminder, 60000);
+    }
+
+    // Show browser notification
+    showNotification(title, options) {
+        if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification(title, options);
+        }
+    }
+
+    // Request notification permission
+    async requestNotificationPermission() {
+        if ('Notification' in window && Notification.permission === 'default') {
+            const permission = await Notification.requestPermission();
+            if (permission === 'granted') {
+                this.showMessage('Notifications enabled! You\'ll receive helpful reminders.', 'success');
+            }
+        }
+    }
+
+    // Helper functions
+    hoursSince(date) {
+        return (new Date() - date) / (1000 * 60 * 60);
+    }
+
+    formatDuration(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${minutes}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    showMessage(message, type = 'info') {
+        const toast = document.getElementById('messageToast');
+        toast.innerHTML = `
+            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+            <span>${message}</span>
+        `;
+        toast.className = `message-toast ${type} show`;
+        
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
+    }
+
+    showLoading(show) {
+        const overlay = document.getElementById('loadingOverlay');
+        overlay.classList.toggle('active', show);
+    }
+
+    resetMoodForm() {
+        this.currentMood = null;
+        this.currentEmotion = null;
+        this.selectedFactors = [];
+        this.emotionIntensity = 5;
+        
+        document.getElementById('moodNote').value = '';
+        document.getElementById('selectedEmotionText').textContent = 'Click on the wheel to select';
+        document.getElementById('moodIntensity').value = 5;
+        document.getElementById('intensityValue').textContent = '5';
+        
+        document.querySelectorAll('.mood-btn').forEach(btn => btn.classList.remove('selected'));
+        document.querySelectorAll('.factor-chip').forEach(chip => chip.classList.remove('selected'));
+    }
+
+    // Export enhanced data
+    exportAllData() {
+        const exportData = {
+            ...this.data,
+            exportDate: new Date().toISOString(),
+            version: '2.0',
+            achievements: this.achievements
+        };
+
+        // Convert Sets to Arrays for export
+        if (exportData.usedMoodValues instanceof Set) {
+            exportData.usedMoodValues = Array.from(exportData.usedMoodValues);
+        }
+        if (exportData.usedEmotions instanceof Set) {
+            exportData.usedEmotions = Array.from(exportData.usedEmotions);
+        }
+
+        const dataStr = JSON.stringify(exportData, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(dataBlob);
+        
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `mindfulme_pro_data_${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        this.showMessage('Your data has been exported successfully!', 'success');
+    }
+
+    // Save data with error handling
+    saveData() {
+        try {
+            const dataToSave = { ...this.data };
+            
+            // Convert Sets to Arrays for storage
+            if (this.data.usedMoodValues instanceof Set) {
+                dataToSave.usedMoodValues = Array.from(this.data.usedMoodValues);
+            }
+            if (this.data.usedEmotions instanceof Set) {
+                dataToSave.usedEmotions = Array.from(this.data.usedEmotions);
+            }
+            
+            localStorage.setItem('mindfulme_pro_data', JSON.stringify(dataToSave));
+        } catch (error) {
+            console.error('Error saving data:', error);
+            this.showMessage('Error saving data. Please try again.', 'error');
+        }
+    }
+}
+
+// Global functions for UI interactions
+function showPage(page) {
+    // Hide all pages
+    document.querySelectorAll('.page-section').forEach(section => {
+        section.style.display = 'none';
+    });
+    
+    // Close mobile menu if open
+    document.getElementById('navMenu').classList.remove('active');
+    document.querySelector('.nav-toggle').classList.remove('active');
+    
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    // Show selected page
+    const pageElement = document.querySelector(`.${page}`);
+    if (pageElement) {
+        pageElement.style.display = 'block';
+        
+        // Page-specific initialization
+        switch(page) {
+            case 'home':
+                app.updateStats();
+                app.calculateWellnessScore();
+                app.initializeCharts();
+                break;
+            case 'insights':
+                app.updateAnalyticsCharts();
+                break;
+            case 'community':
+                app.updateCommunityStats();
+                break;
+            case 'journal':
+                app.updateJournalStats();
+                break;
+            case 'sleep':
+                app.updateSleepDashboard();
+                break;
+        }
+    }
+}
+
+function toggleNav() {
+    const navMenu = document.getElementById('navMenu');
+    const navToggle = document.querySelector('.nav-toggle');
+    navMenu.classList.toggle('active');
+    navToggle.classList.toggle('active');
+}
+
+function toggleNotifications() {
+    const panel = document.getElementById('notificationPanel');
+    panel.classList.toggle('active');
+    document.getElementById('profileDropdown').classList.remove('active');
+}
+
+function toggleProfile() {
+    const dropdown = document.getElementById('profileDropdown');
+    dropdown.classList.toggle('active');
+    document.getElementById('notificationPanel').classList.remove('active');
+}
+
+// Voice input functions
+function switchToVoice() {
+    document.getElementById('textInput').style.display = 'none';
+    document.getElementById('voiceInput').style.display = 'block';
+    document.querySelectorAll('.input-option').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+}
+
+function switchToText() {
+    document.getElementById('voiceInput').style.display = 'none';
+    document.getElementById('textInput').style.display = 'block';
+    document.querySelectorAll('.input-option').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+}
+
+// Filter functions
+function filterMeditations(category) {
+    document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    const cards = document.querySelectorAll('.meditation-card');
+    cards.forEach(card => {
+        if (category === 'all' || card.dataset.category === category) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+function filterJournals(filter) {
+    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    // Implement journal filtering logic
+    app.filterJournalHistory(filter);
+}
+
+// Meditation controls
+function closeMeditationPlayer() {
+    document.getElementById('meditationPlayer').style.display = 'none';
+    if (app.meditationTimer) {
+        clearInterval(app.meditationTimer);
+    }
+}
+
+function togglePlayPause() {
+    const icon = document.getElementById('playPauseIcon');
+    if (icon.classList.contains('fa-pause')) {
+        icon.classList.remove('fa-pause');
+        icon.classList.add('fa-play');
+        // Pause meditation
+    } else {
+        icon.classList.remove('fa-play');
+        icon.classList.add('fa-pause');
+        // Resume meditation
+    }
+}
+
+// Breathing controls
+function toggleBreathing() {
+    const icon = document.getElementById('breathingPlayPause');
+    if (app.breathingActive) {
+        app.breathingActive = false;
+        icon.classList.remove('fa-pause');
+        icon.classList.add('fa-play');
+    } else {
+        app.startBreathingSession();
+        icon.classList.remove('fa-play');
+        icon.classList.add('fa-pause');
+    }
+}
+
+function adjustBreathingSpeed(speed) {
+    app.breathingSpeed = parseFloat(speed);
+}
+
+function backToBreathingSelection() {
+    document.getElementById('breathingInterface').style.display = 'none';
+    document.querySelector('.breathing-selection').style.display = 'grid';
+    app.breathingActive = false;
+}
+
+// Journal functions
+function formatText(command) {
+    document.execCommand(command, false, null);
+}
+
+function insertEmoji() {
+    const emojis = ['😊', '😢', '😰', '🎉', '😌', '💪', '❤️', '🙏'];
+    const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+    document.execCommand('insertText', false, emoji);
+}
+
+function usePrompt(element) {
+    const prompt = element.querySelector('p').textContent;
+    const editor = document.getElementById('journalEditor');
+    editor.focus();
+    document.execCommand('insertText', false, prompt + ' ');
+}
+
+// Settings functions
+function showSettings() {
+    // Implement settings page
+    app.showMessage('Settings page coming soon!', 'info');
+}
+
+function showPrivacy() {
+    // Implement privacy page
+    app.showMessage('Privacy settings coming soon!', 'info');
+}
+
+function logout() {
+    if (confirm('Are you sure you want to logout? Your data will be saved locally.')) {
+        app.showMessage('Logged out successfully!', 'success');
+        // In a real app, handle authentication
+    }
+}
+
+// Initialize app when DOM is loaded
+let app;
+document.addEventListener('DOMContentLoaded', () => {
+    app = new MindfulMeProApp();
+    
+    // Show home page by default
+    showPage('home');
+    
+    // Request notification permission
+    if ('Notification' in window && Notification.permission === 'default') {
+        setTimeout(() => {
+            app.requestNotificationPermission();
+        }, 5000);
+    }
+    
+    // Add smooth scrolling to all links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    });
+    
+    // Initialize service worker for PWA
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js').catch(err => {
+            console.log('Service worker registration failed:', err);
+        });
+    }
+});
+
+// Prevent closing without saving
+window.addEventListener('beforeunload', (e) => {
+    app.saveData();
+});
+
+// End of enhanced app.js

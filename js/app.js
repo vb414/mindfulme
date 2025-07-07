@@ -1486,4 +1486,1237 @@ class MindfulMeProApp {
             const countdown = setInterval(() => {
                 timeLeft -= 0.1;
                 if (timeLeft <= 0) {
-                    clearInterval
+                    clearInterval(countdown);
+                    currentPhase = (currentPhase + 1) % 4;
+                    
+                    if (currentPhase === 0) {
+                        this.breathCycles++;
+                        this.updateBreathingMetrics();
+                        
+                        if (this.breathCycles >= this.currentBreathingExercise.cycles) {
+                            this.completeBreathingSession();
+                            return;
+                        }
+                    }
+                    
+                    breathingCycle();
+                } else {
+                    document.getElementById('breathCount').textContent = timeLeft.toFixed(1);
+                }
+            }, 100);
+        };
+        
+        breathingCycle();
+    }
+
+    // Animate breathing circle
+    animateBreathingCircle(phase, duration) {
+        const circle = document.querySelector('.breath-progress');
+        if (!circle) return;
+        
+        const circumference = 2 * Math.PI * 180;
+        circle.style.strokeDasharray = circumference;
+        
+        if (phase === 0 || phase === 2) { // Inhale or Exhale
+            circle.style.transition = `stroke-dashoffset ${duration}ms linear`;
+            circle.style.strokeDashoffset = phase === 0 ? 0 : circumference;
+        }
+    }
+
+    // Update breathing metrics
+    updateBreathingMetrics() {
+        const elapsed = (Date.now() - this.sessionStartTime) / 1000;
+        const bpm = (this.breathCycles / elapsed) * 60;
+        
+        document.getElementById('breathsPerMinute').textContent = bpm.toFixed(1);
+        document.getElementById('sessionDuration').textContent = this.formatDuration(elapsed);
+        
+        // Simulate heart coherence
+        const coherence = Math.min(100, this.breathCycles * 10);
+        document.getElementById('heartCoherence').textContent = coherence + '%';
+    }
+
+    // Complete breathing session
+    completeBreathingSession() {
+        this.breathingActive = false;
+        const duration = (Date.now() - this.sessionStartTime) / 1000;
+        
+        const session = {
+            type: this.currentBreathingExercise.name,
+            duration: duration,
+            cycles: this.breathCycles,
+            date: new Date().toISOString()
+        };
+        
+        this.data.breathingSessions.push(session);
+        this.saveData();
+        this.checkAchievements();
+        
+        // Show completion message
+        this.showMessage(`Great job! You completed ${this.breathCycles} breathing cycles. 🌟`, 'success');
+        
+        // Reset UI
+        setTimeout(() => {
+            document.getElementById('breathingInterface').style.display = 'none';
+            document.querySelector('.breathing-selection').style.display = 'grid';
+        }, 2000);
+    }
+
+    // Journal methods
+    saveJournal() {
+        const content = document.getElementById('journalContent').value.trim();
+        const title = document.getElementById('journalTitle').value.trim();
+        
+        if (!content) {
+            this.showMessage('Please write something before saving', 'error');
+            return;
+        }
+        
+        const entry = {
+            title: title || 'Untitled Entry',
+            content: content,
+            tags: [...this.currentTags],
+            date: new Date().toISOString()
+        };
+        
+        this.data.journals.push(entry);
+        this.saveData();
+        this.updateStats();
+        this.checkAchievements();
+        
+        // Reset form
+        document.getElementById('journalTitle').value = '';
+        document.getElementById('journalContent').value = '';
+        this.currentTags = [];
+        this.updateTagsDisplay();
+        
+        this.showMessage('Journal entry saved! Keep reflecting and growing. 📝', 'success');
+        this.loadRecentEntries();
+        
+        // Auto-navigate back to home
+        setTimeout(() => showPage('home'), 1500);
+    }
+
+    // Add journal tag
+    addTag(tag) {
+        if (!tag) {
+            tag = document.getElementById('journalTag').value.trim();
+            document.getElementById('journalTag').value = '';
+        }
+        
+        if (tag && !this.currentTags.includes(tag)) {
+            this.currentTags.push(tag);
+            this.updateTagsDisplay();
+        }
+    }
+
+    // Update tags display
+    updateTagsDisplay() {
+        const container = document.getElementById('journalTags');
+        container.innerHTML = this.currentTags.map(tag => `
+            <span class="tag">
+                ${tag}
+                <button onclick="app.removeTag('${tag}')" class="tag-remove">&times;</button>
+            </span>
+        `).join('');
+    }
+
+    // Remove tag
+    removeTag(tag) {
+        this.currentTags = this.currentTags.filter(t => t !== tag);
+        this.updateTagsDisplay();
+    }
+
+    // Update journal stats
+    updateJournalStats() {
+        const editor = document.getElementById('journalEditor');
+        if (!editor) return;
+        
+        const content = editor.innerText;
+        const words = content.trim().split(/\s+/).filter(word => word.length > 0).length;
+        const chars = content.length;
+        const readTime = Math.ceil(words / 200); // Average reading speed
+        
+        document.getElementById('wordCount').textContent = words;
+        document.getElementById('charCount').textContent = chars;
+        document.getElementById('readTime').textContent = readTime;
+    }
+
+    // Enhanced journal with AI analysis
+    async analyzeAndSave() {
+        const content = document.getElementById('journalEditor').innerText.trim();
+        if (!content) {
+            this.showMessage('Please write something before analyzing', 'error');
+            return;
+        }
+        
+        // Show loading
+        this.showLoading(true);
+        
+        // Perform basic analysis (sentiment analysis disabled for browser)
+        let analysis = {
+            sentiment: null,
+            themes: [],
+            suggestions: []
+        };
+        
+        // Extract themes (simplified version)
+        analysis.themes = this.extractThemes(content);
+        
+        // Generate suggestions
+        analysis.suggestions = this.generateJournalSuggestions(analysis);
+        
+        // Save journal entry
+        const entry = {
+            content: content,
+            analysis: analysis,
+            tags: [...this.currentTags],
+            wordCount: content.split(/\s+/).length,
+            date: new Date().toISOString(),
+            mood: document.querySelector('.mood-select').value
+        };
+        
+        this.data.journals.push(entry);
+        this.saveData();
+        this.updateStats();
+        this.checkAchievements();
+        
+        // Show analysis results
+        this.showJournalAnalysis(analysis);
+        
+        // Update journal stats
+        this.updateJournalStatsDashboard();
+        
+        this.showLoading(false);
+        
+        // Check for long journal achievement
+        if (entry.wordCount >= 500 && !this.achievements.longJournal.unlocked) {
+            this.achievements.longJournal.unlocked = true;
+            this.showAchievement(this.achievements.longJournal);
+        }
+    }
+
+    // Extract themes from journal content
+    extractThemes(content) {
+        const themes = [];
+        const themeKeywords = {
+            'Growth': ['grow', 'learn', 'improve', 'better', 'progress'],
+            'Gratitude': ['grateful', 'thankful', 'appreciate', 'blessed', 'fortunate'],
+            'Challenges': ['difficult', 'hard', 'struggle', 'challenge', 'problem'],
+            'Relationships': ['friend', 'family', 'love', 'relationship', 'people'],
+            'Work': ['work', 'job', 'career', 'project', 'task'],
+            'Health': ['health', 'exercise', 'sleep', 'energy', 'tired'],
+            'Emotions': ['feel', 'emotion', 'happy', 'sad', 'angry', 'anxious']
+        };
+        
+        const lowerContent = content.toLowerCase();
+        
+        Object.entries(themeKeywords).forEach(([theme, keywords]) => {
+            const matches = keywords.filter(keyword => lowerContent.includes(keyword));
+            if (matches.length > 0) {
+                themes.push(theme);
+            }
+        });
+        
+        return themes.slice(0, 3); // Return top 3 themes
+    }
+
+    // Generate journal suggestions
+    generateJournalSuggestions(analysis) {
+        const suggestions = [];
+        
+        if (analysis.themes.includes('Challenges')) {
+            suggestions.push({
+                icon: '💪',
+                text: 'You\'re facing challenges head-on. Remember to celebrate small victories and be kind to yourself.'
+            });
+        }
+        
+        if (analysis.themes.includes('Gratitude')) {
+            suggestions.push({
+                icon: '🙏',
+                text: 'Practicing gratitude is powerful! Keep nurturing this positive mindset.'
+            });
+        }
+        
+        if (suggestions.length === 0) {
+            suggestions.push({
+                icon: '✨',
+                text: 'Keep up the great journaling habit! Regular reflection helps build self-awareness.'
+            });
+        }
+        
+        return suggestions;
+    }
+
+    // Show journal analysis results
+    showJournalAnalysis(analysis) {
+        const analysisDiv = document.getElementById('aiAnalysis');
+        if (!analysisDiv) return;
+        
+        analysisDiv.style.display = 'block';
+        
+        // Update themes
+        const themeTags = document.getElementById('themeTags');
+        if (themeTags) {
+            themeTags.innerHTML = analysis.themes.map(theme => 
+                `<span>${theme}</span>`
+            ).join('');
+        }
+        
+        // Update suggestions
+        const suggestionList = document.getElementById('suggestionList');
+        if (suggestionList) {
+            suggestionList.innerHTML = analysis.suggestions.map(suggestion => 
+                `<div>${suggestion.icon} ${suggestion.text}</div>`
+            ).join('');
+        }
+    }
+
+    // Update journal statistics dashboard
+    updateJournalStatsDashboard() {
+        // Journal streak
+        const journalStreak = this.calculateJournalStreak();
+        const journalStreakEl = document.getElementById('journalStreak');
+        if (journalStreakEl) journalStreakEl.textContent = journalStreak;
+        
+        // Calculate total words
+        const totalWords = this.data.journals.reduce((sum, entry) => sum + (entry.wordCount || 0), 0);
+        const totalWordsEl = document.getElementById('totalWords');
+        if (totalWordsEl) totalWordsEl.textContent = totalWords.toLocaleString();
+        
+        // Calculate insights found
+        const insightsCount = this.data.journals.filter(entry => 
+            entry.analysis && entry.analysis.themes && entry.analysis.themes.length > 0
+        ).length;
+        const insightsFoundEl = document.getElementById('insightsFound');
+        if (insightsFoundEl) insightsFoundEl.textContent = insightsCount;
+    }
+
+    // Calculate journal streak
+    calculateJournalStreak() {
+        if (this.data.journals.length === 0) return 0;
+        
+        const sortedEntries = [...this.data.journals].sort((a, b) => 
+            new Date(b.date) - new Date(a.date)
+        );
+        
+        let streak = 0;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        for (let i = 0; i < sortedEntries.length; i++) {
+            const entryDate = new Date(sortedEntries[i].date);
+            entryDate.setHours(0, 0, 0, 0);
+            
+            const dayDiff = Math.floor((today - entryDate) / (1000 * 60 * 60 * 24));
+            
+            if (dayDiff === streak) {
+                streak++;
+            } else {
+                break;
+            }
+        }
+        
+        return streak;
+    }
+
+    // Start meditation session
+    startMeditation(type) {
+        const meditations = {
+            'calm-waters': {
+                name: 'Calm Waters',
+                duration: 600,
+                audio: 'calm-waters.mp3',
+                category: 'anxiety'
+            },
+            'peaceful-night': {
+                name: 'Peaceful Night',
+                duration: 1200,
+                audio: 'peaceful-night.mp3',
+                category: 'sleep'
+            },
+            'laser-focus': {
+                name: 'Laser Focus',
+                duration: 900,
+                audio: 'laser-focus.mp3',
+                category: 'focus'
+            }
+        };
+        
+        this.currentMeditation = meditations[type];
+        this.meditationStartTime = Date.now();
+        
+        // Show player
+        document.getElementById('meditationPlayer').style.display = 'block';
+        document.getElementById('currentMeditationTitle').textContent = this.currentMeditation.name;
+        document.getElementById('totalTime').textContent = this.formatDuration(this.currentMeditation.duration);
+        
+        // Start meditation
+        this.startMeditationTimer();
+        
+        // In a real app, you would play audio here
+        // this.meditationAudio = new Audio(`/audio/${this.currentMeditation.audio}`);
+        // this.meditationAudio.play();
+    }
+
+    // Start meditation timer
+    startMeditationTimer() {
+        this.meditationTimer = setInterval(() => {
+            const elapsed = (Date.now() - this.meditationStartTime) / 1000;
+            const progress = (elapsed / this.currentMeditation.duration) * 100;
+            
+            document.getElementById('currentTime').textContent = this.formatDuration(elapsed);
+            document.getElementById('meditationProgress').style.width = `${progress}%`;
+            
+            if (elapsed >= this.currentMeditation.duration) {
+                this.completeMeditation();
+            }
+        }, 100);
+    }
+
+    // Complete meditation
+    completeMeditation() {
+        clearInterval(this.meditationTimer);
+        
+        const session = {
+            type: this.currentMeditation.name,
+            duration: this.currentMeditation.duration,
+            category: this.currentMeditation.category,
+            date: new Date().toISOString()
+        };
+        
+        if (!this.data.meditationSessions) {
+            this.data.meditationSessions = [];
+        }
+        this.data.meditationSessions.push(session);
+        
+        this.saveData();
+        this.updateStats();
+        
+        // Check meditation achievement
+        if (this.data.meditationSessions.length >= 10 && !this.achievements.meditationMaster.unlocked) {
+            this.achievements.meditationMaster.unlocked = true;
+            this.showAchievement(this.achievements.meditationMaster);
+        }
+        
+        this.showMessage('Meditation completed! Great job on taking time for yourself. 🧘', 'success');
+        
+        // Close player
+        setTimeout(() => {
+            document.getElementById('meditationPlayer').style.display = 'none';
+        }, 2000);
+    }
+
+    // AI Chat functionality
+    sendMessage() {
+        const input = document.getElementById('chatInput');
+        const message = input.value.trim();
+        
+        if (!message) return;
+        
+        // Add user message
+        this.addChatMessage(message, 'user');
+        input.value = '';
+        input.style.height = 'auto';
+        
+        // Show typing indicator
+        document.getElementById('typingIndicator').style.display = 'flex';
+        
+        // Simulate AI response
+        setTimeout(() => {
+            const response = this.generateAIResponse(message);
+            document.getElementById('typingIndicator').style.display = 'none';
+            this.addChatMessage(response, 'ai');
+            
+            // Save conversation
+            this.data.aiConversations.push({
+                user: message,
+                ai: response,
+                date: new Date().toISOString()
+            });
+            this.saveData();
+        }, 1500);
+    }
+
+    // Add chat message to UI
+    addChatMessage(message, sender) {
+        const chatMessages = document.getElementById('chatMessages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${sender}-message fade-in`;
+        
+        if (sender === 'ai') {
+            messageDiv.innerHTML = `
+                <div class="message-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="message-content">
+                    <p>${message}</p>
+                </div>
+            `;
+        } else {
+            messageDiv.innerHTML = `
+                <div class="message-content">
+                    <p>${message}</p>
+                </div>
+            `;
+        }
+        
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Generate AI response (simplified for demo)
+    generateAIResponse(message) {
+        const lowerMessage = message.toLowerCase();
+        
+        // Check for keywords
+        if (lowerMessage.includes('anxious') || lowerMessage.includes('anxiety')) {
+            return this.aiResponses.anxiety[Math.floor(Math.random() * this.aiResponses.anxiety.length)];
+        }
+        
+        if (lowerMessage.includes('sad') || lowerMessage.includes('depressed')) {
+            return this.aiResponses.depression[Math.floor(Math.random() * this.aiResponses.depression.length)];
+        }
+        
+        if (lowerMessage.includes('thank') || lowerMessage.includes('better')) {
+            return this.aiResponses.support[Math.floor(Math.random() * this.aiResponses.support.length)];
+        }
+        
+        // Default response
+        return "I hear you. Can you tell me more about what you're experiencing? I'm here to listen and support you.";
+    }
+
+    // Send quick response
+    sendQuickResponse(response) {
+        document.getElementById('chatInput').value = response;
+        this.sendMessage();
+    }
+
+    // Sleep tracking
+    logSleep() {
+        const bedtime = document.getElementById('bedtime').value;
+        const wakeTime = document.getElementById('wakeTime').value;
+        const quality = document.getElementById('sleepQuality').value;
+        const dreams = document.getElementById('dreams').value;
+        
+        if (!bedtime || !wakeTime) {
+            this.showMessage('Please enter both bedtime and wake time', 'error');
+            return;
+        }
+        
+        // Calculate sleep duration
+        const bedDate = new Date();
+        const wakeDate = new Date();
+        const [bedHour, bedMin] = bedtime.split(':');
+        const [wakeHour, wakeMin] = wakeTime.split(':');
+        
+        bedDate.setHours(bedHour, bedMin);
+        wakeDate.setHours(wakeHour, wakeMin);
+        
+        if (wakeDate < bedDate) {
+            wakeDate.setDate(wakeDate.getDate() + 1);
+        }
+        
+        const duration = (wakeDate - bedDate) / (1000 * 60 * 60);
+        
+        const sleepLog = {
+            bedtime: bedtime,
+            wakeTime: wakeTime,
+            duration: duration,
+            quality: quality,
+            dreams: dreams,
+            date: new Date().toISOString()
+        };
+        
+        if (!this.data.sleepLogs) {
+            this.data.sleepLogs = [];
+        }
+        this.data.sleepLogs.push(sleepLog);
+        
+        this.saveData();
+        this.updateStats();
+        this.checkAchievements();
+        
+        // Check sleep achievement
+        const goodSleepNights = this.data.sleepLogs.filter(log => 
+            log.quality === 'excellent' || log.quality === 'good'
+        ).length;
+        
+        if (goodSleepNights >= 7 && !this.achievements.sleepChampion.unlocked) {
+            this.achievements.sleepChampion.unlocked = true;
+            this.showAchievement(this.achievements.sleepChampion);
+        }
+        
+        this.showMessage('Sleep logged successfully! Sweet dreams lead to better days. 🌙', 'success');
+        
+        // Update sleep dashboard
+        this.updateSleepDashboard();
+    }
+
+    // Update sleep dashboard
+    updateSleepDashboard() {
+        if (this.data.sleepLogs && this.data.sleepLogs.length > 0) {
+            const lastNight = this.data.sleepLogs[this.data.sleepLogs.length - 1];
+            
+            // Update last night's sleep
+            const hoursElement = document.querySelector('.hours');
+            if (hoursElement) {
+                hoursElement.textContent = lastNight.duration.toFixed(1);
+            }
+            
+            // Update sleep quality
+            const qualityElement = document.querySelector('.quality-score');
+            if (qualityElement) {
+                qualityElement.textContent = lastNight.quality.charAt(0).toUpperCase() + lastNight.quality.slice(1);
+            }
+        }
+    }
+
+    // Helper functions
+    hoursSince(date) {
+        return (new Date() - date) / (1000 * 60 * 60);
+    }
+
+    formatDuration(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${minutes}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    showMessage(message, type = 'info') {
+        const toast = document.getElementById('messageToast');
+        if (!toast) {
+            const newToast = document.createElement('div');
+            newToast.id = 'messageToast';
+            newToast.className = 'message-toast';
+            document.body.appendChild(newToast);
+        }
+        
+        const toastEl = document.getElementById('messageToast');
+        toastEl.innerHTML = `
+            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+            <span>${message}</span>
+        `;
+        toastEl.className = `message-toast ${type} show`;
+        
+        setTimeout(() => {
+            toastEl.classList.remove('show');
+        }, 3000);
+    }
+
+    showLoading(show) {
+        const overlay = document.getElementById('loadingOverlay');
+        if (overlay) {
+            overlay.classList.toggle('active', show);
+        }
+    }
+
+    // Export enhanced data
+    exportAllData() {
+        const exportData = {
+            ...this.data,
+            exportDate: new Date().toISOString(),
+            version: '2.0',
+            achievements: this.achievements
+        };
+
+        // Convert Sets to Arrays for export
+        if (exportData.usedMoodValues instanceof Set) {
+            exportData.usedMoodValues = Array.from(exportData.usedMoodValues);
+        }
+        if (exportData.usedEmotions instanceof Set) {
+            exportData.usedEmotions = Array.from(exportData.usedEmotions);
+        }
+
+        const dataStr = JSON.stringify(exportData, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(dataBlob);
+        
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `mindfulme_pro_data_${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        this.showMessage('Your data has been exported successfully!', 'success');
+    }
+
+    // Save data with error handling
+    saveData() {
+        try {
+            const dataToSave = { ...this.data };
+            
+            // Convert Sets to Arrays for storage
+            if (this.data.usedMoodValues instanceof Set) {
+                dataToSave.usedMoodValues = Array.from(this.data.usedMoodValues);
+            }
+            if (this.data.usedEmotions instanceof Set) {
+                dataToSave.usedEmotions = Array.from(this.data.usedEmotions);
+            }
+            
+            localStorage.setItem('mindfulme_pro_data', JSON.stringify(dataToSave));
+        } catch (error) {
+            console.error('Error saving data:', error);
+            this.showMessage('Error saving data. Please try again.', 'error');
+        }
+    }
+}
+
+// Global functions for UI interactions
+function showPage(page) {
+    // Hide all pages
+    document.querySelectorAll('.page-section').forEach(section => {
+        section.style.display = 'none';
+    });
+    
+    // Close mobile menu if open
+    const navMenu = document.getElementById('navMenu');
+    if (navMenu) navMenu.classList.remove('active');
+    
+    const navToggle = document.querySelector('.nav-toggle');
+    if (navToggle) navToggle.classList.remove('active');
+    
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    // Show selected page
+    const pageElement = document.querySelector(`.${page}`);
+    if (page === 'home') {
+        const heroSection = document.querySelector('.hero-section');
+        if (heroSection) {
+            heroSection.style.display = 'block';
+        }
+    } else if (pageElement) {
+        pageElement.style.display = 'block';
+    }
+    
+    // Page-specific initialization
+    if (window.app) {
+        switch(page) {
+            case 'home':
+                app.updateStats();
+                app.calculateWellnessScore();
+                app.initializeCharts();
+                break;
+            case 'insights':
+                // Initialize analytics if needed
+                break;
+            case 'community':
+                app.updateCommunityStats();
+                break;
+            case 'journal':
+                app.updateJournalStatsDashboard();
+                break;
+            case 'sleep':
+                app.updateSleepDashboard();
+                break;
+        }
+    }
+}
+
+function toggleNav() {
+    const navMenu = document.getElementById('navMenu');
+    const navToggle = document.querySelector('.nav-toggle');
+    if (navMenu) navMenu.classList.toggle('active');
+    if (navToggle) navToggle.classList.toggle('active');
+}
+
+function toggleNotifications() {
+    const panel = document.getElementById('notificationPanel');
+    if (panel) panel.classList.toggle('active');
+    
+    const profileDropdown = document.getElementById('profileDropdown');
+    if (profileDropdown) profileDropdown.classList.remove('active');
+}
+
+function toggleProfile() {
+    const dropdown = document.getElementById('profileDropdown');
+    if (dropdown) dropdown.classList.toggle('active');
+    
+    const notificationPanel = document.getElementById('notificationPanel');
+    if (notificationPanel) notificationPanel.classList.remove('active');
+}
+
+// Voice input functions
+function switchToVoice() {
+    document.getElementById('textInput').style.display = 'none';
+    document.getElementById('voiceInput').style.display = 'block';
+    document.querySelectorAll('.input-option').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+}
+
+function switchToText() {
+    document.getElementById('voiceInput').style.display = 'none';
+    document.getElementById('textInput').style.display = 'block';
+    document.querySelectorAll('.input-option').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+}
+
+// Filter functions
+function filterMeditations(category) {
+    document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    const cards = document.querySelectorAll('.meditation-card');
+    cards.forEach(card => {
+        if (category === 'all' || card.dataset.category === category) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+function filterJournals(filter) {
+    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    // Implement journal filtering logic
+    if (app) {
+        // app.filterJournalHistory(filter);
+    }
+}
+
+// Meditation controls
+function closeMeditationPlayer() {
+    document.getElementById('meditationPlayer').style.display = 'none';
+    if (app && app.meditationTimer) {
+        clearInterval(app.meditationTimer);
+    }
+}
+
+function togglePlayPause() {
+    const icon = document.getElementById('playPauseIcon');
+    if (icon.classList.contains('fa-pause')) {
+        icon.classList.remove('fa-pause');
+        icon.classList.add('fa-play');
+        // Pause meditation
+    } else {
+        icon.classList.remove('fa-play');
+        icon.classList.add('fa-pause');
+        // Resume meditation
+    }
+}
+
+function skipBackward() {
+    // Skip backward functionality
+}
+
+function skipForward() {
+    // Skip forward functionality
+}
+
+// Breathing controls
+function startBreathingExercise(type) {
+    if (app) {
+        app.startBreathingExercise(type);
+    }
+}
+
+function toggleBreathing() {
+    const icon = document.getElementById('breathingPlayPause');
+    if (app && app.breathingActive) {
+        app.breathingActive = false;
+        icon.classList.remove('fa-pause');
+        icon.classList.add('fa-play');
+    } else if (app) {
+        app.startBreathingSession();
+        icon.classList.remove('fa-play');
+        icon.classList.add('fa-pause');
+    }
+}
+
+function adjustBreathingSpeed(speed) {
+    if (app) {
+        app.breathingSpeed = parseFloat(speed);
+    }
+}
+
+function backToBreathingSelection() {
+    document.getElementById('breathingInterface').style.display = 'none';
+    document.querySelector('.breathing-selection').style.display = 'grid';
+    if (app) {
+        app.breathingActive = false;
+    }
+}
+
+// Journal functions
+function formatText(command) {
+    document.execCommand(command, false, null);
+}
+
+function insertEmoji() {
+    const emojis = ['😊', '😢', '😰', '🎉', '😌', '💪', '❤️', '🙏'];
+    const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+    document.execCommand('insertText', false, emoji);
+}
+
+function usePrompt(element) {
+    const prompt = element.querySelector('p').textContent;
+    const editor = document.getElementById('journalEditor');
+    if (editor) {
+        editor.focus();
+        document.execCommand('insertText', false, prompt + ' ');
+    }
+}
+
+function setJournalMood(mood) {
+    // Set journal mood
+}
+
+function saveDraft() {
+    if (app) {
+        app.showMessage('Draft saved!', 'success');
+    }
+}
+
+function analyzeAndSave() {
+    if (app) {
+        app.analyzeAndSave();
+    }
+}
+
+// Sleep functions
+function logSleep() {
+    if (app) {
+        app.logSleep();
+    }
+}
+
+// AI Therapist functions
+function sendMessage() {
+    if (app) {
+        app.sendMessage();
+    }
+}
+
+function sendQuickResponse(response) {
+    if (app) {
+        app.sendQuickResponse(response);
+    }
+}
+
+// Analytics functions
+function changePeriod(period) {
+    if (app) {
+        app.changePeriod(period);
+    }
+}
+
+function showCustomDateRange() {
+    if (app) {
+        app.showMessage('Custom date range coming soon!', 'info');
+    }
+}
+
+function generateReport(type) {
+    if (app) {
+        app.generateReport(type);
+    }
+}
+
+function shareWithTherapist() {
+    if (app) {
+        app.shareWithTherapist();
+    }
+}
+
+// Settings functions
+function showSettings() {
+    if (app) {
+        app.showMessage('Settings page coming soon!', 'info');
+    }
+}
+
+function showPrivacy() {
+    if (app) {
+        app.showMessage('Privacy settings coming soon!', 'info');
+    }
+}
+
+function exportAllData() {
+    if (app) {
+        app.exportAllData();
+    }
+}
+
+function logout() {
+    if (confirm('Are you sure you want to logout? Your data will be saved locally.')) {
+        if (app) {
+            app.showMessage('Logged out successfully!', 'success');
+        }
+        // In a real app, handle authentication
+    }
+}
+
+// Meditation functions
+function startMeditation(type) {
+    if (app) {
+        app.startMeditation(type);
+    }
+}
+
+// Update intensity display
+function updateIntensityDisplay(value) {
+    if (app) {
+        app.updateIntensityDisplay(value);
+    }
+}
+
+// Initialize app when DOM is loaded
+let app;
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM loaded, initializing app...');
+    
+    try {
+        app = new MindfulMeProApp();
+        window.app = app;
+        
+        // Show home page by default
+        showPage('home');
+        
+        // Request notification permission after delay
+        if ('Notification' in window && Notification.permission === 'default') {
+            setTimeout(() => {
+                app.requestNotificationPermission();
+            }, 5000);
+        }
+    } catch (error) {
+        console.error('Error initializing app:', error);
+        
+        // Show error message to user
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message';
+        errorDiv.innerHTML = `
+            <p>There was an error loading the app. Please refresh the page.</p>
+            <button onclick="location.reload()">Refresh</button>
+        `;
+        document.body.appendChild(errorDiv);
+    }
+    
+    // Add smooth scrolling to anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const href = this.getAttribute('href');
+            if (href && href !== '#') {
+                const target = document.querySelector(href);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        });
+    });
+});
+
+// Prevent closing without saving
+window.addEventListener('beforeunload', (e) => {
+    if (app) {
+        app.saveData();
+    }
+});
+
+// Handle errors globally
+window.addEventListener('error', (event) => {
+    console.error('Global error:', event.error);
+    
+    // Log errors for debugging
+    if (app && app.data) {
+        if (!app.data.errors) {
+            app.data.errors = [];
+        }
+        app.data.errors.push({
+            message: event.error.message,
+            stack: event.error.stack,
+            timestamp: new Date().toISOString()
+        });
+        
+        // Keep only last 10 errors
+        if (app.data.errors.length > 10) {
+            app.data.errors = app.data.errors.slice(-10);
+        }
+        
+        app.saveData();
+    }
+});
+
+// PWA install prompt
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    
+    // Show install button
+    const installBtn = document.createElement('button');
+    installBtn.className = 'install-pwa-btn';
+    installBtn.innerHTML = '<i class="fas fa-download"></i> Install App';
+    installBtn.onclick = async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                console.log('User accepted the install prompt');
+            }
+            deferredPrompt = null;
+            installBtn.remove();
+        }
+    };
+    
+    // Add to navbar
+    const navActions = document.querySelector('.nav-actions');
+    if (navActions) {
+        navActions.appendChild(installBtn);
+    }
+});
+
+// Performance monitoring
+if ('PerformanceObserver' in window) {
+    const perfObserver = new PerformanceObserver((list) => {
+        for (const entry of list.getEntries()) {
+            // Log slow resources
+            if (entry.duration > 1000) {
+                console.warn('Slow resource:', entry.name, entry.duration);
+            }
+        }
+    });
+    
+    perfObserver.observe({ entryTypes: ['resource'] });
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+    // Ctrl/Cmd + S to save
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        if (app) {
+            app.saveData();
+            app.showMessage('Data saved!', 'success');
+        }
+    }
+    
+    // Escape to close modals
+    if (e.key === 'Escape') {
+        // Close any open modals
+        document.querySelectorAll('.modal.active').forEach(modal => {
+            modal.classList.remove('active');
+        });
+        
+        // Close dropdowns
+        document.getElementById('notificationPanel')?.classList.remove('active');
+        document.getElementById('profileDropdown')?.classList.remove('active');
+    }
+});
+
+// Touch gestures for mobile
+let touchStartX = 0;
+let touchEndX = 0;
+
+document.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+});
+
+document.addEventListener('touchend', (e) => {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+});
+
+function handleSwipe() {
+    const swipeThreshold = 50;
+    const diff = touchStartX - touchEndX;
+    
+    if (Math.abs(diff) > swipeThreshold) {
+        if (diff > 0) {
+            // Swiped left - could navigate to next page
+            console.log('Swiped left');
+        } else {
+            // Swiped right - could navigate to previous page
+            console.log('Swiped right');
+        }
+    }
+}
+
+// Visibility change handler (pause timers when tab is hidden)
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        // Pause any active timers
+        if (app && app.breathingTimer) {
+            app.pauseBreathing();
+        }
+    }
+});
+
+// Online/Offline detection
+window.addEventListener('online', () => {
+    if (app) {
+        app.showMessage('You\'re back online!', 'success');
+    }
+});
+
+window.addEventListener('offline', () => {
+    if (app) {
+        app.showMessage('You\'re offline. Don\'t worry, your data is saved locally.', 'info');
+    }
+});
+
+// Debug mode (activated by typing "debug" on the page)
+let debugSequence = '';
+document.addEventListener('keypress', (e) => {
+    debugSequence += e.key;
+    if (debugSequence.includes('debug')) {
+        debugSequence = '';
+        if (app) {
+            console.log('App Data:', app.data);
+            console.log('Achievements:', app.achievements);
+            console.log('Wellness Score:', app.wellnessScore);
+            app.showMessage('Debug mode activated - check console', 'info');
+        }
+    }
+    
+    // Clear sequence if too long
+    if (debugSequence.length > 10) {
+        debugSequence = '';
+    }
+});
+
+// Export global functions for use in HTML
+window.showPage = showPage;
+window.toggleNav = toggleNav;
+window.toggleNotifications = toggleNotifications;
+window.toggleProfile = toggleProfile;
+window.updateIntensityDisplay = updateIntensityDisplay;
+window.startBreathingExercise = startBreathingExercise;
+window.toggleBreathing = toggleBreathing;
+window.adjustBreathingSpeed = adjustBreathingSpeed;
+window.backToBreathingSelection = backToBreathingSelection;
+window.startMeditation = startMeditation;
+window.closeMeditationPlayer = closeMeditationPlayer;
+window.togglePlayPause = togglePlayPause;
+window.skipBackward = skipBackward;
+window.skipForward = skipForward;
+window.filterMeditations = filterMeditations;
+window.filterJournals = filterJournals;
+window.formatText = formatText;
+window.insertEmoji = insertEmoji;
+window.usePrompt = usePrompt;
+window.setJournalMood = setJournalMood;
+window.saveDraft = saveDraft;
+window.analyzeAndSave = analyzeAndSave;
+window.sendMessage = sendMessage;
+window.sendQuickResponse = sendQuickResponse;
+window.logSleep = logSleep;
+window.changePeriod = changePeriod;
+window.showCustomDateRange = showCustomDateRange;
+window.generateReport = generateReport;
+window.shareWithTherapist = shareWithTherapist;
+window.showSettings = showSettings;
+window.showPrivacy = showPrivacy;
+window.exportAllData = exportAllData;
+window.logout = logout;
+window.switchToVoice = switchToVoice;
+window.switchToText = switchToText;
+
+// End of fixed app.js
+console.log('MindfulMe Pro initialized successfully!');

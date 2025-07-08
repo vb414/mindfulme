@@ -1,4 +1,4 @@
-/* MindfulMe Pro - Advanced CSS Styles */
+/* MindfulMe Pro - Complete CSS Styles */
 
 :root {
     --primary: #6366f1;
@@ -21,8 +21,6 @@
     --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
     --gradient-accent: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    --gradient-warm: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-    --gradient-cool: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
     
     /* Shadows */
     --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -34,17 +32,8 @@
     --transition-fast: 150ms ease;
     --transition-base: 300ms ease;
     --transition-slow: 500ms ease;
-    
-    /* Spacing */
-    --spacing-xs: 0.25rem;
-    --spacing-sm: 0.5rem;
-    --spacing-md: 1rem;
-    --spacing-lg: 1.5rem;
-    --spacing-xl: 2rem;
-    --spacing-2xl: 3rem;
 }
 
-/* Global Styles */
 * {
     margin: 0;
     padding: 0;
@@ -59,6 +48,18 @@ body {
     min-height: 100vh;
     overflow-x: hidden;
     position: relative;
+}
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Container */
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem;
 }
 
 /* Animated Background */
@@ -365,6 +366,64 @@ body {
     color: var(--text-muted);
 }
 
+/* Profile Dropdown */
+.profile-dropdown {
+    position: fixed;
+    top: 70px;
+    right: 2rem;
+    width: 300px;
+    background: var(--surface);
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-20px);
+    opacity: 0;
+    visibility: hidden;
+    transition: all var(--transition-base);
+    z-index: 999;
+}
+
+.profile-dropdown.active {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+}
+
+.profile-header {
+    display: flex;
+    gap: 1rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--glass-border);
+    margin-bottom: 1rem;
+}
+
+.profile-header img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+}
+
+.profile-menu {
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-menu a {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    border-radius: 12px;
+    transition: all var(--transition-base);
+}
+
+.profile-menu a:hover {
+    background: var(--glass-bg);
+    color: var(--text-primary);
+}
+
 /* Page Sections */
 .page-section {
     padding-top: 100px;
@@ -383,12 +442,7 @@ body {
     }
 }
 
-.container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 2rem;
-}
-
+/* Page Header */
 .page-header {
     text-align: center;
     margin-bottom: 3rem;
@@ -408,7 +462,11 @@ body {
     color: var(--text-secondary);
 }
 
-/* Enhanced Hero Section */
+/* Hero Section */
+.hero-section {
+    display: block !important;
+}
+
 .welcome-section {
     padding: 2rem;
     margin-bottom: 2rem;
@@ -454,66 +512,31 @@ body {
     color: var(--primary);
 }
 
-/* AI Insights Card */
-.ai-insights-card {
+/* Daily Quote */
+.daily-quote {
     padding: 2rem;
     margin-bottom: 2rem;
+    text-align: center;
 }
 
-.ai-header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
+.daily-quote i {
+    font-size: 2rem;
+    color: var(--primary);
+    margin-bottom: 1rem;
 }
 
-.ai-avatar {
-    width: 50px;
-    height: 50px;
-    background: var(--gradient-primary);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
+.daily-quote p {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
 }
 
-.ai-avatar.pulse {
-    animation: pulse 2s infinite;
-}
-
-.ai-content p {
+.daily-quote cite {
     color: var(--text-secondary);
-    line-height: 1.8;
-    margin-bottom: 1.5rem;
+    font-style: normal;
 }
 
-.ai-suggestions {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-}
-
-.suggestion-chip {
-    padding: 0.75rem 1.5rem;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 30px;
-    cursor: pointer;
-    transition: all var(--transition-base);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.9rem;
-}
-
-.suggestion-chip:hover {
-    background: rgba(99, 102, 241, 0.1);
-    border-color: var(--primary);
-    transform: translateY(-2px);
-}
-
-/* Enhanced Stats Grid */
+/* Stats Grid */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -619,10 +642,6 @@ body {
     margin-top: 0.5rem;
 }
 
-#miniMoodChart {
-    margin-top: 0.5rem;
-}
-
 /* Feature Grid */
 .feature-grid {
     display: grid;
@@ -711,167 +730,72 @@ body {
     background: var(--gradient-primary);
 }
 
-/* Weekly Overview */
-.weekly-overview {
+/* Mood Tracker */
+.mood-section {
     padding: 2rem;
-    margin-bottom: 3rem;
-}
-
-.weekly-overview h3 {
     margin-bottom: 2rem;
-    color: var(--text-primary);
 }
 
-.chart-container {
-    position: relative;
-    height: 300px;
-    margin-bottom: 1.5rem;
-}
-
-.chart-legend {
+.mood-options {
     display: flex;
     justify-content: center;
-    gap: 2rem;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
     flex-wrap: wrap;
 }
 
-.legend-item {
+.mood-btn {
     display: flex;
+    flex-direction: column;
     align-items: center;
     gap: 0.5rem;
-}
-
-.legend-color {
-    width: 20px;
-    height: 4px;
-    border-radius: 2px;
-}
-
-/* Achievements Showcase */
-.achievements-showcase {
-    padding: 2rem;
-    margin-bottom: 3rem;
-}
-
-.achievement-carousel {
-    display: flex;
-    gap: 1.5rem;
-    overflow-x: auto;
-    padding: 1rem 0;
-    scroll-behavior: smooth;
-}
-
-.achievement-carousel::-webkit-scrollbar {
-    height: 8px;
-}
-
-.achievement-carousel::-webkit-scrollbar-track {
+    padding: 1.5rem;
     background: var(--glass-bg);
-    border-radius: 4px;
-}
-
-.achievement-carousel::-webkit-scrollbar-thumb {
-    background: var(--primary);
-    border-radius: 4px;
-}
-
-/* Enhanced Mood Tracker */
-.emotion-wheel-container {
-    padding: 2rem;
-    text-align: center;
-    margin-bottom: 2rem;
-}
-
-.emotion-wheel {
-    margin: 2rem auto;
-    position: relative;
+    border: 2px solid var(--glass-border);
+    border-radius: 20px;
     cursor: pointer;
+    transition: all var(--transition-base);
 }
 
-#emotionWheelCanvas {
-    max-width: 100%;
-    height: auto;
+.mood-btn:hover {
+    background: rgba(99, 102, 241, 0.1);
+    border-color: var(--primary);
+    transform: translateY(-5px);
 }
 
-.selected-emotion {
-    margin-top: 1.5rem;
+.mood-btn.selected {
+    background: var(--gradient-primary);
+    border-color: transparent;
 }
 
-#selectedEmotionText {
-    font-size: 1.2rem;
-    color: var(--primary);
+.mood-btn.selected .mood-label {
+    color: white;
+}
+
+.mood-emoji {
+    font-size: 3rem;
+}
+
+.mood-label {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
     font-weight: 500;
 }
 
-/* Mood Intensity */
-.mood-intensity {
-    padding: 2rem;
-    margin-bottom: 2rem;
+.mood-factors {
+    margin-top: 2rem;
 }
 
-.intensity-slider {
-    margin: 2rem 0;
-}
-
-.intensity-slider input[type="range"] {
-    width: 100%;
-    height: 8px;
-    background: var(--glass-bg);
-    border-radius: 4px;
-    outline: none;
-    -webkit-appearance: none;
-}
-
-.intensity-slider input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 24px;
-    height: 24px;
-    background: var(--gradient-primary);
-    border-radius: 50%;
-    cursor: pointer;
-    box-shadow: 0 2px 10px rgba(99, 102, 241, 0.5);
-}
-
-.intensity-labels {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 0.5rem;
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-}
-
-.intensity-value {
-    text-align: center;
-    font-size: 3rem;
-    font-weight: bold;
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-/* Enhanced Mood Factors */
-.mood-factors-enhanced {
-    padding: 2rem;
-    margin-bottom: 2rem;
-}
-
-.factor-categories {
-    display: grid;
-    gap: 2rem;
-}
-
-.factor-category h4 {
-    color: var(--text-primary);
+.mood-factors h3 {
     margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+    color: var(--text-primary);
 }
 
 .factor-chips {
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem;
+    margin-bottom: 2rem;
 }
 
 .factor-chip {
@@ -885,6 +809,7 @@ body {
     align-items: center;
     gap: 0.5rem;
     font-size: 0.9rem;
+    color: var(--text-primary);
 }
 
 .factor-chip:hover {
@@ -898,41 +823,12 @@ body {
     border-color: transparent;
 }
 
-/* Voice Note Section */
-.voice-note-section {
-    padding: 2rem;
+.mood-note {
     margin-bottom: 2rem;
 }
 
-.input-options {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-}
-
-.input-option {
-    flex: 1;
-    padding: 0.75rem;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all var(--transition-base);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-}
-
-.input-option.active {
-    background: var(--gradient-primary);
-    color: white;
-    border-color: transparent;
-}
-
-.text-input textarea {
+.mood-note textarea {
     width: 100%;
-    min-height: 150px;
     padding: 1rem;
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
@@ -941,54 +837,58 @@ body {
     font-size: 1rem;
     resize: vertical;
     font-family: inherit;
-    transition: all var(--transition-base);
 }
 
-.text-input textarea:focus {
+.mood-note textarea:focus {
     outline: none;
     border-color: var(--primary);
-    background: rgba(255, 255, 255, 0.08);
 }
 
-.voice-record-btn {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    background: var(--gradient-primary);
-    border: none;
-    color: white;
+/* Mood History */
+.mood-history {
+    padding: 2rem;
+    margin-top: 2rem;
+}
+
+.mood-history h3 {
+    margin-bottom: 1.5rem;
+}
+
+.mood-history-item {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background: var(--glass-bg);
+    border-radius: 12px;
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    margin: 0 auto;
-    cursor: pointer;
-    transition: all var(--transition-base);
-    box-shadow: 0 5px 20px rgba(99, 102, 241, 0.4);
+    align-items: start;
+    gap: 1rem;
 }
 
-.voice-record-btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 8px 30px rgba(99, 102, 241, 0.6);
-}
-
-.voice-record-btn:active {
-    transform: scale(0.95);
-}
-
-.voice-record-btn i {
+.mood-history-item .mood-emoji {
     font-size: 2rem;
 }
 
-/* Save Mood Button */
-.save-mood-btn {
-    width: 100%;
-    max-width: 400px;
-    margin: 2rem auto;
-    display: block;
+.mood-history-item .mood-date {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
 }
 
+.mood-history-item .mood-note {
+    margin: 0.5rem 0;
+    color: var(--text-primary);
+}
+
+.factor-tag {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    background: var(--primary);
+    color: white;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    margin-right: 0.5rem;
+}
+
+/* Buttons */
 .btn {
     padding: 1rem 2rem;
     border: none;
@@ -1025,69 +925,280 @@ body {
     border-color: var(--primary);
 }
 
-.btn-large {
-    padding: 1.25rem 2.5rem;
+.save-mood-btn {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    display: block;
+}
+
+/* Breathing Exercise */
+.breathing-techniques {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.technique-card {
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.technique-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+}
+
+.technique-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.technique-card h3 {
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.technique-card p {
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+}
+
+.technique-timing {
+    font-size: 0.9rem;
+    color: var(--primary);
+    font-weight: 500;
+}
+
+.breathing-container {
+    padding: 2rem;
+    text-align: center;
+}
+
+.breathing-visual {
+    margin: 2rem 0;
+}
+
+.breathing-circle {
+    width: 200px;
+    height: 200px;
+    margin: 2rem auto;
+    border-radius: 50%;
+    background: var(--glass-bg);
+    border: 3px solid var(--glass-border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.5s ease;
+}
+
+.breathing-circle.inhale {
+    transform: scale(1.2);
+    background: rgba(99, 102, 241, 0.2);
+    border-color: var(--primary);
+}
+
+.breathing-circle.hold {
+    background: rgba(234, 179, 8, 0.2);
+    border-color: var(--warning);
+}
+
+.breathing-circle.exhale {
+    transform: scale(0.8);
+    background: rgba(16, 185, 129, 0.2);
+    border-color: var(--success);
+}
+
+.breathing-text {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.breathing-counter {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--primary);
+}
+
+.breathing-stats {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin: 1rem 0;
     font-size: 1.1rem;
 }
 
-/* Recent Moods Timeline */
-.recent-moods-timeline {
-    padding: 2rem;
-    margin-top: 3rem;
-}
-
-.timeline {
-    position: relative;
-    padding-left: 2rem;
-}
-
-.timeline::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background: var(--glass-border);
-}
-
-/* Meditation Studio */
-.meditation-categories {
+.breathing-controls {
     display: flex;
+    justify-content: center;
     gap: 1rem;
-    margin-bottom: 2rem;
-    overflow-x: auto;
+    margin-top: 2rem;
 }
 
-.category-btn {
-    padding: 0.75rem 1.5rem;
+/* Completion Message */
+.completion-message {
+    text-align: center;
+    padding: 3rem;
+}
+
+.completion-message i {
+    font-size: 4rem;
+    color: var(--success);
+    margin-bottom: 1rem;
+}
+
+.completion-message h3 {
+    margin-bottom: 1rem;
+}
+/* Journal Styles */
+.journal-prompt {
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.journal-prompt i {
+    font-size: 2rem;
+    color: var(--primary);
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.journal-prompt p {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+}
+
+.journal-editor {
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.journal-title-input {
+    width: 100%;
+    padding: 1rem;
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
-    border-radius: 25px;
-    cursor: pointer;
-    transition: all var(--transition-base);
+    border-radius: 12px;
+    color: var(--text-primary);
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+#journalContent {
+    width: 100%;
+    padding: 1rem;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    color: var(--text-primary);
+    font-size: 1rem;
+    resize: vertical;
+    font-family: inherit;
+    margin-bottom: 1rem;
+}
+
+#journalContent:focus,
+.journal-title-input:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.journal-tags {
     display: flex;
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.journal-tags input {
+    flex: 1;
+    padding: 0.75rem;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    color: var(--text-primary);
+}
+
+.tags-display {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 1rem 0;
+}
+
+.tag {
+    background: var(--primary);
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    white-space: nowrap;
 }
 
-.category-btn.active {
-    background: var(--gradient-primary);
+.tag-remove {
+    background: none;
+    border: none;
     color: white;
-    border-color: transparent;
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 0;
+    line-height: 1;
 }
 
+.recent-entries {
+    padding: 2rem;
+}
+
+.journal-entry {
+    padding: 1.5rem;
+    background: var(--glass-bg);
+    border-radius: 12px;
+    margin-bottom: 1rem;
+}
+
+.journal-entry h4 {
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.entry-date {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.entry-preview {
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.entry-tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+/* Meditation */
 .meditation-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 1.5rem;
-    margin-bottom: 3rem;
+    margin-bottom: 2rem;
 }
 
 .meditation-card {
     overflow: hidden;
     transition: all var(--transition-base);
+    position: relative;
 }
 
 .meditation-card:hover {
@@ -1135,14 +1246,10 @@ body {
     font-size: 0.9rem;
 }
 
-.meditation-meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 1.5rem;
-}
-
 .play-btn {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -1163,76 +1270,38 @@ body {
 
 /* Meditation Player */
 .meditation-player {
-    position: fixed;
-    bottom: 2rem;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 90%;
-    max-width: 600px;
     padding: 2rem;
-    z-index: 100;
-}
-
-.player-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-}
-
-.close-player {
-    background: none;
-    border: none;
-    color: var(--text-secondary);
-    font-size: 1.2rem;
-    cursor: pointer;
-    padding: 0.5rem;
-    border-radius: 50%;
-    transition: all var(--transition-base);
-}
-
-.close-player:hover {
-    background: var(--glass-bg);
-    color: var(--text-primary);
+    margin-top: 2rem;
+    text-align: center;
 }
 
 .player-visual {
-    text-align: center;
-    margin-bottom: 2rem;
+    display: flex;
+    justify-content: center;
+    margin: 2rem 0;
 }
 
 .breathing-orb {
-    width: 150px;
-    height: 150px;
+    width: 120px;
+    height: 120px;
     background: var(--gradient-primary);
     border-radius: 50%;
-    margin: 0 auto 1rem;
-    animation: breathe 4s ease-in-out infinite;
-}
-
-@keyframes breathe {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.2); }
-}
-
-.player-time {
-    color: var(--text-secondary);
+    animation: pulse 4s ease-in-out infinite;
 }
 
 .player-controls {
     display: flex;
     justify-content: center;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
+    margin: 2rem 0;
 }
 
 .player-controls button {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    color: var(--text-primary);
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
+    background: var(--gradient-primary);
+    border: none;
+    color: white;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1241,74 +1310,133 @@ body {
 }
 
 .player-controls button:hover {
-    background: rgba(99, 102, 241, 0.1);
+    transform: scale(1.1);
+    box-shadow: 0 5px 20px rgba(99, 102, 241, 0.5);
+}
+
+.player-time {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+/* Community */
+.community-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.stat-item {
+    padding: 2rem;
+    text-align: center;
+}
+
+.stat-item i {
+    font-size: 2.5rem;
+    color: var(--primary);
+    margin-bottom: 1rem;
+}
+
+.stat-item h3 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.community-feed {
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.community-post {
+    padding: 1.5rem;
+    background: var(--glass-bg);
+    border-radius: 12px;
+    margin-bottom: 1rem;
+}
+
+.post-header {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.post-header img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.post-header h4 {
+    margin: 0;
+}
+
+.post-header span {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.post-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.post-actions button {
+    background: none;
+    border: 1px solid var(--glass-border);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.post-actions button:hover {
+    background: var(--glass-bg);
+    color: var(--primary);
     border-color: var(--primary);
 }
 
-.player-controls .play-pause {
-    width: 60px;
-    height: 60px;
-    background: var(--gradient-primary);
-    color: white;
-    border: none;
+.motivational-messages {
+    padding: 2rem;
 }
 
-.player-progress {
-    width: 100%;
-}
-
-.progress-bar-container {
-    height: 6px;
+.message-card {
+    padding: 1.5rem;
     background: var(--glass-bg);
-    border-radius: 3px;
-    overflow: hidden;
+    border-radius: 12px;
+    text-align: center;
 }
 
-#meditationProgress {
-    height: 100%;
-    background: var(--gradient-primary);
-    width: 0%;
-    transition: width 0.1s linear;
+.message-card i {
+    font-size: 1.5rem;
+    color: var(--primary);
+    margin-bottom: 1rem;
+    display: block;
 }
 
-/* AI Therapist Chat */
+.message-card p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.message-card cite {
+    color: var(--text-secondary);
+}
+
+/* AI Therapist */
 .chat-container {
     max-width: 800px;
     margin: 0 auto;
-    height: 600px;
+    height: 500px;
     display: flex;
     flex-direction: column;
-}
-
-.chat-header {
-    padding: 1.5rem;
-    border-bottom: 1px solid var(--glass-border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.ai-status {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.status-indicator {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: var(--success);
-    animation: pulse-status 2s infinite;
-}
-
-@keyframes pulse-status {
-    0%, 100% {
-        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-    }
-    50% {
-        box-shadow: 0 0 0 5px rgba(16, 185, 129, 0);
-    }
 }
 
 .chat-messages {
@@ -1367,71 +1495,15 @@ body {
     border-top-right-radius: 5px;
 }
 
-.quick-responses {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-top: 1rem;
-}
-
-.quick-responses button {
-    padding: 0.5rem 1rem;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    cursor: pointer;
-    transition: all var(--transition-base);
-    font-size: 0.9rem;
-}
-
-.quick-responses button:hover {
-    background: rgba(99, 102, 241, 0.1);
-    border-color: var(--primary);
-}
-
 .chat-input-container {
     padding: 1.5rem;
     border-top: 1px solid var(--glass-border);
-}
-
-.typing-indicator {
-    display: flex;
-    gap: 0.3rem;
-    padding: 0.5rem;
-}
-
-.typing-indicator span {
-    width: 8px;
-    height: 8px;
-    background: var(--text-secondary);
-    border-radius: 50%;
-    animation: typing 1.4s infinite;
-}
-
-.typing-indicator span:nth-child(2) {
-    animation-delay: 0.2s;
-}
-
-.typing-indicator span:nth-child(3) {
-    animation-delay: 0.4s;
-}
-
-@keyframes typing {
-    0%, 60%, 100% {
-        transform: translateY(0);
-    }
-    30% {
-        transform: translateY(-10px);
-    }
-}
-
-.chat-input {
     display: flex;
     gap: 1rem;
     align-items: flex-end;
 }
 
-.chat-input textarea {
+#chatInput {
     flex: 1;
     min-height: 50px;
     max-height: 150px;
@@ -1443,6 +1515,11 @@ body {
     font-size: 1rem;
     resize: vertical;
     font-family: inherit;
+}
+
+#chatInput:focus {
+    outline: none;
+    border-color: var(--primary);
 }
 
 .send-btn {
@@ -1478,408 +1555,7 @@ body {
     color: var(--warning);
 }
 
-/* Community Support */
-.community-stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 3rem;
-}
-
-.stat-item {
-    padding: 2rem;
-    text-align: center;
-}
-
-.stat-item i {
-    font-size: 2.5rem;
-    color: var(--primary);
-    margin-bottom: 1rem;
-}
-
-.stat-item h3 {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
-}
-
-.forums-section {
-    padding: 2rem;
-    margin-bottom: 3rem;
-}
-
-.forum-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    margin-top: 1.5rem;
-}
-
-.forum-item {
-    display: flex;
-    gap: 1.5rem;
-    padding: 1.5rem;
-    background: var(--glass-bg);
-    border-radius: 15px;
-    transition: all var(--transition-base);
-    cursor: pointer;
-}
-
-.forum-item:hover {
-    background: rgba(99, 102, 241, 0.1);
-    transform: translateX(5px);
-}
-
-.forum-icon {
-    width: 60px;
-    height: 60px;
-    background: var(--gradient-primary);
-    border-radius: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    color: white;
-}
-
-.forum-content {
-    flex: 1;
-}
-
-.forum-content h4 {
-    margin-bottom: 0.5rem;
-    color: var(--text-primary);
-}
-
-.forum-content p {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-    margin-bottom: 0.75rem;
-}
-
-.forum-meta {
-    display: flex;
-    gap: 1.5rem;
-    font-size: 0.8rem;
-    color: var(--text-muted);
-}
-
-/* Success Stories */
-.success-stories {
-    padding: 2rem;
-}
-
-.story-carousel {
-    display: flex;
-    gap: 1.5rem;
-    overflow-x: auto;
-    padding: 1rem 0;
-}
-
-.story-card {
-    min-width: 300px;
-    padding: 1.5rem;
-    background: var(--glass-bg);
-    border-radius: 15px;
-    transition: all var(--transition-base);
-}
-
-.story-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.2);
-}
-
-.story-header {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1rem;
-}
-
-.story-header img {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-}
-
-.story-header h4 {
-    color: var(--text-primary);
-}
-
-.story-header span {
-    color: var(--text-muted);
-    font-size: 0.8rem;
-}
-
-.story-stats {
-    display: flex;
-    gap: 1.5rem;
-    margin-top: 1rem;
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-}
-
-/* Enhanced Journal */
-.journal-dashboard {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-}
-
-.journal-stat {
-    padding: 1.5rem;
-    text-align: center;
-}
-
-.journal-stat i {
-    font-size: 2rem;
-    color: var(--primary);
-    margin-bottom: 0.75rem;
-}
-
-.journal-stat h3 {
-    font-size: 1.5rem;
-    margin-bottom: 0.25rem;
-}
-
-.journal-stat p {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-}
-
-.journal-editor-enhanced {
-    padding: 2rem;
-    margin-bottom: 2rem;
-}
-
-.editor-toolbar {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 1rem;
-    background: var(--glass-bg);
-    border-radius: 12px;
-    margin-bottom: 1.5rem;
-    flex-wrap: wrap;
-}
-
-.tool-btn {
-    width: 40px;
-    height: 40px;
-    background: none;
-    border: none;
-    color: var(--text-secondary);
-    cursor: pointer;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all var(--transition-base);
-}
-
-.tool-btn:hover {
-    background: rgba(99, 102, 241, 0.1);
-    color: var(--primary);
-}
-
-.separator {
-    width: 1px;
-    height: 30px;
-    background: var(--glass-border);
-    margin: 0 0.5rem;
-}
-
-.mood-select {
-    padding: 0.5rem 1rem;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 8px;
-    color: var(--text-primary);
-    cursor: pointer;
-}
-
-.writing-prompts {
-    margin-bottom: 1.5rem;
-}
-
-.prompt-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-    margin-top: 1rem;
-}
-
-.prompt-card {
-    padding: 1.5rem;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all var(--transition-base);
-    text-align: center;
-}
-
-.prompt-card:hover {
-    background: rgba(99, 102, 241, 0.1);
-    border-color: var(--primary);
-    transform: translateY(-2px);
-}
-
-.prompt-card i {
-    font-size: 1.5rem;
-    color: var(--primary);
-    margin-bottom: 0.5rem;
-}
-
-.journal-content-area {
-    background: var(--glass-bg);
-    border-radius: 12px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-}
-
-.journal-date {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: var(--text-secondary);
-    margin-bottom: 1rem;
-    font-size: 0.9rem;
-}
-
-.journal-editor {
-    min-height: 300px;
-    color: var(--text-primary);
-    font-size: 1.1rem;
-    line-height: 1.8;
-    outline: none;
-}
-
-.journal-editor[contenteditable]:empty::before {
-    content: attr(placeholder);
-    color: var(--text-muted);
-}
-
-.journal-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 1rem;
-}
-
-.word-stats {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-}
-
-.journal-actions {
-    display: flex;
-    gap: 1rem;
-}
-
-/* AI Analysis */
-.ai-analysis {
-    padding: 2rem;
-    margin-bottom: 2rem;
-}
-
-.analysis-content {
-    display: grid;
-    gap: 2rem;
-    margin-top: 1.5rem;
-}
-
-.sentiment-meter {
-    height: 10px;
-    background: var(--glass-bg);
-    border-radius: 5px;
-    overflow: hidden;
-    margin: 1rem 0;
-}
-
-.sentiment-fill {
-    height: 100%;
-    background: var(--gradient-primary);
-    transition: width 1s ease;
-}
-
-.theme-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-}
-
-.theme-tags span {
-    padding: 0.5rem 1rem;
-    background: var(--gradient-primary);
-    color: white;
-    border-radius: 20px;
-    font-size: 0.9rem;
-}
-
-.suggestion-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.suggestion-list div {
-    padding: 1rem;
-    background: var(--glass-bg);
-    border-radius: 12px;
-    border-left: 4px solid var(--primary);
-}
-
-/* Journal History */
-.journal-history {
-    padding: 2rem;
-}
-
-.history-filter {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
-}
-
-.filter-btn {
-    padding: 0.5rem 1rem;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    cursor: pointer;
-    transition: all var(--transition-base);
-}
-
-.filter-btn.active {
-    background: var(--gradient-primary);
-    color: white;
-    border-color: transparent;
-}
-
 /* Analytics */
-.time-period-selector {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    padding: 1rem;
-    margin-bottom: 2rem;
-}
-
-.period-btn {
-    padding: 0.75rem 1.5rem;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 25px;
-    cursor: pointer;
-    transition: all var(--transition-base);
-}
-
-.period-btn.active {
-    background: var(--gradient-primary);
-    color: white;
-    border-color: transparent;
-}
-
 .analytics-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
@@ -1896,428 +1572,54 @@ body {
     color: var(--text-primary);
 }
 
-.pattern-insights,
-.correlation-insights {
-    margin-top: 1rem;
-    padding: 1rem;
-    background: var(--glass-bg);
-    border-radius: 12px;
-    font-size: 0.9rem;
-}
-
-.pattern-insights i,
-.correlation-insights i {
-    color: var(--primary);
-    margin-right: 0.5rem;
-}
-
-/* Wellness Score */
-.wellness-score-display {
-    text-align: center;
-    margin-bottom: 2rem;
-}
-
-.score-circle {
-    position: relative;
-    width: 200px;
-    height: 200px;
-    margin: 0 auto;
-}
-
-.score-circle svg {
-    transform: rotate(-90deg);
-}
-
-.score-bg,
-.score-progress {
-    fill: none;
-    stroke-width: 10;
-}
-
-.score-bg {
-    stroke: var(--glass-bg);
-}
-
-.score-progress {
-    stroke: var(--gradient-primary);
-    stroke-linecap: round;
-    transition: stroke-dashoffset 1s ease;
-}
-
-.score-text {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-}
-
-.score-value {
-    font-size: 3rem;
-    font-weight: bold;
-    display: block;
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-.score-label {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-}
-
-.score-breakdown {
+.factor-item {
     display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.breakdown-item {
-    display: flex;
-    justify-content: space-between;
     align-items: center;
     gap: 1rem;
+    margin-bottom: 1rem;
 }
 
-.mini-progress {
+.factor-bar {
     flex: 1;
-    height: 6px;
+    height: 8px;
     background: var(--glass-bg);
-    border-radius: 3px;
+    border-radius: 4px;
     overflow: hidden;
 }
 
-.progress-fill {
+.factor-fill {
     height: 100%;
     background: var(--gradient-primary);
     transition: width 1s ease;
 }
 
-/* Predictions */
-.predictions {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
-
-.prediction-item {
-    display: flex;
-    gap: 1rem;
-    padding: 1rem;
-    background: var(--glass-bg);
-    border-radius: 12px;
-}
-
-.prediction-item i {
-    font-size: 1.5rem;
-    color: var(--primary);
-}
-
-.prediction-item h4 {
-    color: var(--text-primary);
-    margin-bottom: 0.25rem;
-}
-
-.prediction-item p {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-}
-
-/* Report Generation */
-.detailed-reports {
+.wellness-score-display {
+    text-align: center;
     padding: 2rem;
 }
 
-.report-options {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-    margin-top: 1.5rem;
-}
-
-.report-btn {
-    padding: 1.5rem;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all var(--transition-base);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.75rem;
-    text-align: center;
-}
-
-.report-btn:hover {
-    background: rgba(99, 102, 241, 0.1);
-    border-color: var(--primary);
-    transform: translateY(-2px);
-}
-
-.report-btn i {
-    font-size: 2rem;
-    color: var(--primary);
-}
-
-/* Breathing Studio */
-.breathing-selection {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 3rem;
-}
-
-.exercise-card {
-    padding: 2rem;
-    text-align: center;
-    cursor: pointer;
-    transition: all var(--transition-base);
-}
-
-.exercise-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
-}
-
-.exercise-icon {
-    font-size: 3rem;
-    color: var(--primary);
-    margin-bottom: 1rem;
-}
-
-.exercise-benefits {
-    display: flex;
-    justify-content: center;
-    gap: 0.5rem;
-    margin-top: 1rem;
-}
-
-.benefit-tag {
-    padding: 0.3rem 0.8rem;
-    background: var(--glass-bg);
-    border-radius: 15px;
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-}
-
-/* Sleep Tracker */
-.sleep-dashboard {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-    margin-bottom: 3rem;
-}
-
-.sleep-score-visual {
-    text-align: center;
-    margin: 2rem 0;
-}
-
-.score-ring {
-    position: relative;
-    width: 200px;
-    height: 200px;
+.score-circle {
+    width: 150px;
+    height: 150px;
     margin: 0 auto;
-}
-
-.ring-bg,
-.ring-progress {
-    fill: none;
-    stroke-width: 15;
-}
-
-.ring-bg {
-    stroke: var(--glass-bg);
-}
-
-.ring-progress {
-    stroke: var(--gradient-cool);
-    stroke-linecap: round;
-    transform: rotate(-90deg);
-    transform-origin: center;
-    transition: stroke-dashoffset 1s ease;
-}
-
-.ring-content {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-}
-
-.hours {
-    font-size: 2.5rem;
-    font-weight: bold;
-    display: block;
-    color: var(--text-primary);
-}
-
-.label {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-}
-
-.sleep-quality {
-    text-align: center;
-}
-
-.quality-score {
-    color: var(--success);
-    font-weight: 600;
-}
-
-.sleep-stats {
-    display: grid;
-    gap: 1.5rem;
-}
-
-.sleep-stats .stat {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem;
     background: var(--glass-bg);
-    border-radius: 12px;
-}
-
-.sleep-stats .stat i {
-    font-size: 1.5rem;
-    color: var(--primary);
-}
-
-.sleep-stats .stat span {
-    font-size: 1.2rem;
-    font-weight: 600;
-}
-
-.sleep-stats .stat label {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-}
-
-/* Sleep Log */
-.sleep-log {
-    padding: 2rem;
-    margin-bottom: 3rem;
-}
-
-.sleep-input-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1.5rem;
-    margin: 1.5rem 0;
-}
-
-.input-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-}
-
-.input-group input,
-.input-group select {
-    width: 100%;
-    padding: 0.75rem;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 8px;
-    color: var(--text-primary);
-}
-
-/* Sleep Insights */
-.sleep-insights {
-    padding: 2rem;
-}
-
-.insight-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1.5rem;
-    margin-top: 1.5rem;
-}
-
-.insight-card {
-    padding: 1.5rem;
-    background: var(--glass-bg);
-    border-radius: 12px;
-    text-align: center;
-}
-
-.insight-card i {
-    font-size: 2rem;
-    color: var(--primary);
-    margin-bottom: 0.75rem;
-}
-
-.insight-card h4 {
-    color: var(--text-primary);
-    margin-bottom: 0.5rem;
-}
-
-.insight-card p {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-}
-
-/* Profile Dropdown */
-.profile-dropdown {
-    position: fixed;
-    top: 70px;
-    right: 2rem;
-    width: 300px;
-    background: var(--surface);
-    border-radius: 20px;
-    padding: 1.5rem;
-    box-shadow: var(--shadow-lg);
-    transform: translateY(-20px);
-    opacity: 0;
-    visibility: hidden;
-    transition: all var(--transition-base);
-    z-index: 999;
-}
-
-.profile-dropdown.active {
-    transform: translateY(0);
-    opacity: 1;
-    visibility: visible;
-}
-
-.profile-header {
-    display: flex;
-    gap: 1rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid var(--glass-border);
-    margin-bottom: 1rem;
-}
-
-.profile-header img {
-    width: 50px;
-    height: 50px;
     border-radius: 50%;
-}
-
-.profile-menu {
     display: flex;
     flex-direction: column;
-}
-
-.profile-menu a {
-    display: flex;
     align-items: center;
-    gap: 1rem;
-    padding: 0.75rem 1rem;
-    color: var(--text-secondary);
-    text-decoration: none;
-    border-radius: 12px;
-    transition: all var(--transition-base);
+    justify-content: center;
+    border: 8px solid var(--primary);
 }
 
-.profile-menu a:hover {
-    background: var(--glass-bg);
-    color: var(--text-primary);
+.score-value {
+    font-size: 3rem;
+    font-weight: bold;
+    color: var(--primary);
+}
+
+.score-label {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
 }
 
 /* Loading Overlay */
@@ -2438,10 +1740,6 @@ body {
     .analytics-grid {
         grid-template-columns: 1fr;
     }
-    
-    .sleep-dashboard {
-        grid-template-columns: 1fr;
-    }
 }
 
 @media (max-width: 768px) {
@@ -2496,33 +1794,11 @@ body {
     }
     
     .chat-container {
-        height: 500px;
+        height: 400px;
     }
     
-    .emotion-wheel {
-        transform: scale(0.8);
-    }
-    
-    .breathing-selection {
+    .breathing-techniques {
         grid-template-columns: 1fr;
-    }
-    
-    .journal-dashboard {
-        grid-template-columns: repeat(2, 1fr);
-    }
-    
-    .prompt-cards {
-        grid-template-columns: 1fr;
-    }
-    
-    .report-options {
-        grid-template-columns: 1fr;
-    }
-    
-    .notification-panel,
-    .profile-dropdown {
-        width: calc(100vw - 2rem);
-        right: 1rem;
     }
 }
 
@@ -2543,50 +1819,22 @@ body {
         font-size: 2rem;
     }
     
-    .journal-dashboard {
-        grid-template-columns: 1fr;
+    .mood-options {
+        gap: 1rem;
     }
     
-    .meditation-player {
-        width: 95%;
-        padding: 1.5rem;
+    .mood-btn {
+        padding: 1rem;
     }
     
-    .message-toast {
+    .mood-emoji {
+        font-size: 2rem;
+    }
+    
+    .notification-panel,
+    .profile-dropdown {
+        width: calc(100vw - 2rem);
         right: 1rem;
-        left: 1rem;
-        width: auto;
-    }
-}
-
-/* Accessibility */
-@media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-    }
-}
-
-/* Dark mode adjustments */
-@media (prefers-color-scheme: light) {
-    :root {
-        --background: #f8fafc;
-        --surface: #ffffff;
-        --card-bg: rgba(255, 255, 255, 0.8);
-        --glass-bg: rgba(30, 41, 59, 0.05);
-        --glass-border: rgba(30, 41, 59, 0.1);
-        --text-primary: #0f172a;
-        --text-secondary: #475569;
-        --text-muted: #64748b;
-    }
-    
-    .animated-bg {
-        background: #f8fafc;
-    }
-    
-    .gradient-orb {
-        opacity: 0.2;
     }
 }
 
@@ -2642,71 +1890,9 @@ a:focus {
     outline-offset: 4px;
 }
 
-/* Additional utility classes */
+/* Utility classes */
 .text-center { text-align: center; }
-.text-left { text-align: left; }
-.text-right { text-align: right; }
-
 .mt-1 { margin-top: 0.5rem; }
 .mt-2 { margin-top: 1rem; }
-.mt-3 { margin-top: 1.5rem; }
-.mt-4 { margin-top: 2rem; }
-
 .mb-1 { margin-bottom: 0.5rem; }
 .mb-2 { margin-bottom: 1rem; }
-.mb-3 { margin-bottom: 1.5rem; }
-.mb-4 { margin-bottom: 2rem; }
-
-.p-1 { padding: 0.5rem; }
-.p-2 { padding: 1rem; }
-.p-3 { padding: 1.5rem; }
-.p-4 { padding: 2rem; }
-
-.hidden { display: none; }
-.block { display: block; }
-.flex { display: flex; }
-.grid { display: grid; }
-
-.gap-1 { gap: 0.5rem; }
-.gap-2 { gap: 1rem; }
-.gap-3 { gap: 1.5rem; }
-.gap-4 { gap: 2rem; }
-
-/* Animation classes */
-.fade-in {
-    animation: fadeIn 0.5s ease;
-}
-
-.slide-up {
-    animation: slideUp 0.5s ease;
-}
-
-@keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.scale-in {
-    animation: scaleIn 0.3s ease;
-}
-
-@keyframes scaleIn {
-    from {
-        opacity: 0;
-        transform: scale(0.9);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-
-/* End of enhanced styles.css */
-
-  

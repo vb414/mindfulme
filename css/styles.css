@@ -1896,3 +1896,74 @@ a:focus {
 .mt-2 { margin-top: 1rem; }
 .mb-1 { margin-bottom: 0.5rem; }
 .mb-2 { margin-bottom: 1rem; }
+
+/* FIX FOR STAT CARDS HEIGHT ISSUE */
+.stat-card {
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    height: auto !important; /* Force auto height */
+    min-height: 200px; /* Minimum height */
+    max-height: 250px; /* Maximum height */
+}
+
+/* Fix canvas sizing */
+#miniMoodChart {
+    max-height: 40px !important;
+    width: 100% !important;
+    display: block !important;
+}
+
+/* Ensure stats grid doesn't stretch */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+    align-items: start !important; /* Align to top */
+}
+
+/* Fix stat content positioning */
+.stat-content {
+    position: relative;
+    z-index: 1;
+}
+
+/* Ensure page sections work properly */
+.hero-section {
+    display: block !important; /* Always show hero section */
+}
+
+/* Fix navigation menu on mobile */
+.nav-menu.active {
+    left: 0 !important;
+}
+
+/* Fix dropdowns z-index */
+.notification-panel,
+.profile-dropdown {
+    z-index: 9999 !important;
+}
+
+/* Fix breathing circle visibility */
+.breathing-circle {
+    position: relative;
+    z-index: 1;
+}
+
+/* Ensure feature cards are clickable */
+.feature-card {
+    cursor: pointer !important;
+}
+
+/* Fix chat container height */
+.chat-container {
+    height: 500px !important;
+}
+
+/* Fix meditation player z-index */
+.meditation-player {
+    z-index: 100 !important;
+}

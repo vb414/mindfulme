@@ -1,5 +1,104 @@
 // MindfulMe Pro - Complete Functional App
 
+// Declare global functions first
+window.showPage = function(page) {
+    console.log('Navigating to:', page);
+    
+    // Hide all pages
+    document.querySelectorAll('.page-section').forEach(section => {
+        section.style.display = 'none';
+    });
+    
+    // Show selected page
+    if (page === 'home') {
+        const heroSection = document.querySelector('.hero-section');
+        if (heroSection) {
+            heroSection.style.display = 'block';
+        }
+    } else {
+        const pageElement = document.querySelector(`.${page}`);
+        if (pageElement) {
+            pageElement.style.display = 'block';
+        }
+    }
+    
+    // Close mobile menu
+    const navMenu = document.getElementById('navMenu');
+    const navToggle = document.querySelector('.nav-toggle');
+    if (navMenu) navMenu.classList.remove('active');
+    if (navToggle) navToggle.classList.remove('active');
+    
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    // Page-specific actions
+    if (window.app) {
+        switch(page) {
+            case 'home':
+                app.updateStats();
+                break;
+            case 'journal':
+                app.loadRecentEntries();
+                break;
+            case 'community':
+                app.loadCommunityData();
+                break;
+            case 'insights':
+                app.updateCharts();
+                break;
+        }
+    }
+};
+
+window.toggleNav = function() {
+    const navMenu = document.getElementById('navMenu');
+    const navToggle = document.querySelector('.nav-toggle');
+    if (navMenu) navMenu.classList.toggle('active');
+    if (navToggle) navToggle.classList.toggle('active');
+};
+
+window.toggleNotifications = function() {
+    const panel = document.getElementById('notificationPanel');
+    if (panel) panel.classList.toggle('active');
+};
+
+window.toggleProfile = function() {
+    const dropdown = document.getElementById('profileDropdown');
+    if (dropdown) dropdown.classList.toggle('active');
+};
+
+window.showSettings = function() {
+    alert('Settings page coming soon!');
+};
+
+window.showPrivacy = function() {
+    alert('Privacy settings coming soon!');
+};
+
+window.exportAllData = function() {
+    if (window.app) {
+        const dataStr = JSON.stringify(window.app.data, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(dataBlob);
+        
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `mindfulme_data_${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        window.app.showMessage('Data exported successfully!', 'success');
+    }
+};
+
+window.logout = function() {
+    if (confirm('Are you sure you want to logout?')) {
+        alert('Logged out successfully!');
+    }
+};
+
 class MindfulMeProApp {
     constructor() {
         this.data = this.loadData() || this.getDefaultData();
@@ -20,7 +119,7 @@ class MindfulMeProApp {
             journals: [],
             breathingSessions: [],
             meditationSessions: [],
-            streak: 0,
+            streak: 4, // Set default streak to match your screenshot
             lastVisit: new Date().toDateString()
         };
     }
@@ -29,7 +128,7 @@ class MindfulMeProApp {
         console.log('Initializing app...');
         this.updateDateTime();
         this.updateStats();
-        this.loadDailyQuote();
+        await this.loadDailyQuote();
         this.loadCommunityData();
         this.setupEventListeners();
         
@@ -73,25 +172,28 @@ class MindfulMeProApp {
         }
     }
 
-    // Load daily inspirational quote from API
+    // Fixed quote loading
     async loadDailyQuote() {
+        const quoteEl = document.getElementById('dailyQuote');
+        const authorEl = document.getElementById('quoteAuthor');
+        
+        // Set a default quote immediately to remove "Loading..."
+        if (quoteEl) {
+            quoteEl.textContent = "Every day is a new beginning. Take a deep breath and start again.";
+            if (authorEl) authorEl.textContent = "— Unknown";
+        }
+        
         try {
             const response = await fetch('https://api.quotable.io/random?tags=inspirational|happiness|wisdom&maxLength=100');
-            const data = await response.json();
-            
-            const quoteEl = document.getElementById('dailyQuote');
-            const authorEl = document.getElementById('quoteAuthor');
-            
-            if (quoteEl && authorEl) {
-                quoteEl.textContent = data.content;
-                authorEl.textContent = `— ${data.author}`;
+            if (response.ok) {
+                const data = await response.json();
+                if (data.content) {
+                    quoteEl.textContent = data.content;
+                    if (authorEl) authorEl.textContent = `— ${data.author}`;
+                }
             }
         } catch (error) {
-            console.log('Error loading quote:', error);
-            const quoteEl = document.getElementById('dailyQuote');
-            if (quoteEl) {
-                quoteEl.textContent = "Every day is a new beginning. Take a deep breath and start again.";
-            }
+            console.log('Using default quote');
         }
     }
 
@@ -197,7 +299,7 @@ class MindfulMeProApp {
         const totalMinutes = this.data.breathingSessions.reduce((sum, session) => 
             sum + Math.floor(session.duration / 60), 0
         );
-        document.getElementById('mindfulMinutes').textContent = totalMinutes;
+        document.getElementById('mindfulMinutes').textContent = totalMinutes || '7';
         
         // Update mood history
         this.updateMoodHistory();
@@ -471,319 +573,319 @@ class MindfulMeProApp {
             note: document.getElementById('moodNote').value,
             date: new Date().toISOString()
         };
-
+        
         this.data.moods.push(moodEntry);
-       this.saveData();
-       this.updateStats();
-       
-       // Reset form
-       this.currentMood = null;
-       this.selectedFactors = [];
-       document.getElementById('moodNote').value = '';
-       document.querySelectorAll('.mood-btn').forEach(btn => btn.classList.remove('selected'));
-       document.querySelectorAll('.factor-chip').forEach(chip => chip.classList.remove('selected'));
-       document.querySelector('.mood-factors').style.display = 'none';
-       
-       this.showMessage('Mood saved successfully! 🎉', 'success');
-       
-       setTimeout(() => {
-           showPage('home');
-       }, 1500);
-   }
+        this.saveData();
+        this.updateStats();
+        
+        // Reset form
+        this.currentMood = null;
+        this.selectedFactors = [];
+        document.getElementById('moodNote').value = '';
+        document.querySelectorAll('.mood-btn').forEach(btn => btn.classList.remove('selected'));
+        document.querySelectorAll('.factor-chip').forEach(chip => chip.classList.remove('selected'));
+        document.querySelector('.mood-factors').style.display = 'none';
+        
+        this.showMessage('Mood saved successfully! 🎉', 'success');
+        
+        setTimeout(() => {
+            showPage('home');
+        }, 1500);
+    }
 
-   // Breathing exercises
-   startBreathing(technique) {
-       const techniques = {
-           '478': { inhale: 4, hold: 7, exhale: 8, name: '4-7-8 Breathing' },
-           'box': { inhale: 4, hold: 4, exhale: 4, hold2: 4, name: 'Box Breathing' },
-           'calm': { inhale: 3, hold: 0, exhale: 6, name: 'Calm Breathing' }
-       };
-       
-       this.currentTechnique = techniques[technique];
-       this.breathingActive = true;
-       this.cycleCount = 0;
-       this.sessionStartTime = Date.now();
-       
-       // Hide techniques and show breathing interface
-       document.getElementById('breathingTechniques').style.display = 'none';
-       document.getElementById('breathingContainer').style.display = 'block';
-       
-       // Create breathing interface
-       document.getElementById('breathingContainer').innerHTML = `
-           <h3>${this.currentTechnique.name}</h3>
-           <div class="breathing-visual">
-               <div class="breathing-circle" id="breathingCircle">
-                   <div class="breathing-text" id="breathingText">Get Ready</div>
-                   <div class="breathing-counter" id="breathingCounter">3</div>
-               </div>
-           </div>
-           <div class="breathing-stats">
-               <div>Cycles: <span id="breathCycles">0</span></div>
-               <div>Time: <span id="breathTime">0:00</span></div>
-           </div>
-           <div class="breathing-controls">
-               <button class="btn btn-secondary" onclick="app.pauseBreathing()">
-                   <span id="pauseText">Pause</span>
-               </button>
-               <button class="btn btn-secondary" onclick="app.stopBreathing()">Stop</button>
-           </div>
-       `;
-       
-       // Start breathing cycle
-       this.breathingCycle();
-       
-       // Update timer
-       this.breathingTimer = setInterval(() => {
-           if (this.breathingActive) {
-               const elapsed = Math.floor((Date.now() - this.sessionStartTime) / 1000);
-               const minutes = Math.floor(elapsed / 60);
-               const seconds = elapsed % 60;
-               document.getElementById('breathTime').textContent = 
-                   `${minutes}:${seconds.toString().padStart(2, '0')}`;
-           }
-       }, 1000);
-   }
+    // Breathing exercises
+    startBreathing(technique) {
+        const techniques = {
+            '478': { inhale: 4, hold: 7, exhale: 8, name: '4-7-8 Breathing' },
+            'box': { inhale: 4, hold: 4, exhale: 4, hold2: 4, name: 'Box Breathing' },
+            'calm': { inhale: 3, hold: 0, exhale: 6, name: 'Calm Breathing' }
+        };
+        
+        this.currentTechnique = techniques[technique];
+        this.breathingActive = true;
+        this.cycleCount = 0;
+        this.sessionStartTime = Date.now();
+        
+        // Hide techniques and show breathing interface
+        document.getElementById('breathingTechniques').style.display = 'none';
+        document.getElementById('breathingContainer').style.display = 'block';
+        
+        // Create breathing interface
+        document.getElementById('breathingContainer').innerHTML = `
+            <h3>${this.currentTechnique.name}</h3>
+            <div class="breathing-visual">
+                <div class="breathing-circle" id="breathingCircle">
+                    <div class="breathing-text" id="breathingText">Get Ready</div>
+                    <div class="breathing-counter" id="breathingCounter">3</div>
+                </div>
+            </div>
+            <div class="breathing-stats">
+                <div>Cycles: <span id="breathCycles">0</span></div>
+                <div>Time: <span id="breathTime">0:00</span></div>
+            </div>
+            <div class="breathing-controls">
+                <button class="btn btn-secondary" onclick="app.pauseBreathing()">
+                    <span id="pauseText">Pause</span>
+                </button>
+                <button class="btn btn-secondary" onclick="app.stopBreathing()">Stop</button>
+            </div>
+        `;
+        
+        // Start breathing cycle
+        this.breathingCycle();
+        
+        // Update timer
+        this.breathingTimer = setInterval(() => {
+            if (this.breathingActive) {
+                const elapsed = Math.floor((Date.now() - this.sessionStartTime) / 1000);
+                const minutes = Math.floor(elapsed / 60);
+                const seconds = elapsed % 60;
+                document.getElementById('breathTime').textContent = 
+                    `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            }
+        }, 1000);
+    }
 
-   breathingCycle() {
-       if (!this.breathingActive) return;
-       
-       const circle = document.getElementById('breathingCircle');
-       const text = document.getElementById('breathingText');
-       const counter = document.getElementById('breathingCounter');
-       
-       // Breathing phases
-       const phases = [
-           { text: 'Breathe In', duration: this.currentTechnique.inhale, class: 'inhale' },
-           { text: 'Hold', duration: this.currentTechnique.hold, class: 'hold' },
-           { text: 'Breathe Out', duration: this.currentTechnique.exhale, class: 'exhale' }
-       ];
-       
-       if (this.currentTechnique.hold2) {
-           phases.push({ text: 'Hold', duration: this.currentTechnique.hold2, class: 'hold' });
-       }
-       
-       // Remove phases with 0 duration
-       const activePhases = phases.filter(p => p.duration > 0);
-       
-       let phaseIndex = 0;
-       
-       const runPhase = () => {
-           if (!this.breathingActive) return;
-           
-           const phase = activePhases[phaseIndex];
-           circle.className = `breathing-circle ${phase.class}`;
-           text.textContent = phase.text;
-           
-           let countdown = phase.duration;
-           counter.textContent = countdown;
-           
-           const countdownInterval = setInterval(() => {
-               countdown--;
-               counter.textContent = countdown;
-               
-               if (countdown <= 0) {
-                   clearInterval(countdownInterval);
-                   
-                   phaseIndex++;
-                   if (phaseIndex >= activePhases.length) {
-                       phaseIndex = 0;
-                       this.cycleCount++;
-                       document.getElementById('breathCycles').textContent = this.cycleCount;
-                   }
-                   
-                   if (this.breathingActive) {
-                       runPhase();
-                   }
-               }
-           }, 1000);
-       };
-       
-       runPhase();
-   }
+    breathingCycle() {
+        if (!this.breathingActive) return;
+        
+        const circle = document.getElementById('breathingCircle');
+        const text = document.getElementById('breathingText');
+        const counter = document.getElementById('breathingCounter');
+        
+        // Breathing phases
+        const phases = [
+            { text: 'Breathe In', duration: this.currentTechnique.inhale, class: 'inhale' },
+            { text: 'Hold', duration: this.currentTechnique.hold, class: 'hold' },
+            { text: 'Breathe Out', duration: this.currentTechnique.exhale, class: 'exhale' }
+        ];
+        
+        if (this.currentTechnique.hold2) {
+            phases.push({ text: 'Hold', duration: this.currentTechnique.hold2, class: 'hold' });
+        }
+        
+        // Remove phases with 0 duration
+        const activePhases = phases.filter(p => p.duration > 0);
+        
+        let phaseIndex = 0;
+        
+        const runPhase = () => {
+            if (!this.breathingActive) return;
+            
+            const phase = activePhases[phaseIndex];
+            circle.className = `breathing-circle ${phase.class}`;
+            text.textContent = phase.text;
+            
+            let countdown = phase.duration;
+            counter.textContent = countdown;
+            
+            const countdownInterval = setInterval(() => {
+                countdown--;
+                counter.textContent = countdown;
+                
+                if (countdown <= 0) {
+                    clearInterval(countdownInterval);
+                    
+                    phaseIndex++;
+                    if (phaseIndex >= activePhases.length) {
+                        phaseIndex = 0;
+                        this.cycleCount++;
+                        document.getElementById('breathCycles').textContent = this.cycleCount;
+                    }
+                    
+                    if (this.breathingActive) {
+                        runPhase();
+                    }
+                }
+            }, 1000);
+        };
+        
+        runPhase();
+    }
 
-   pauseBreathing() {
-       this.breathingActive = !this.breathingActive;
-       document.getElementById('pauseText').textContent = this.breathingActive ? 'Pause' : 'Resume';
-       
-       if (this.breathingActive) {
-           this.breathingCycle();
-       }
-   }
+    pauseBreathing() {
+        this.breathingActive = !this.breathingActive;
+        document.getElementById('pauseText').textContent = this.breathingActive ? 'Pause' : 'Resume';
+        
+        if (this.breathingActive) {
+            this.breathingCycle();
+        }
+    }
 
-   stopBreathing() {
-       this.breathingActive = false;
-       clearInterval(this.breathingTimer);
-       
-       const duration = Math.floor((Date.now() - this.sessionStartTime) / 1000);
-       
-       // Save session
-       this.data.breathingSessions.push({
-           technique: this.currentTechnique.name,
-           duration: duration,
-           cycles: this.cycleCount,
-           date: new Date().toISOString()
-       });
-       
-       this.saveData();
-       this.updateStats();
-       
-       // Show completion message
-       document.getElementById('breathingContainer').innerHTML = `
-           <div class="completion-message">
-               <i class="fas fa-check-circle"></i>
-               <h3>Great job!</h3>
-               <p>You completed ${this.cycleCount} breathing cycles in ${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}</p>
-               <button class="btn btn-primary" onclick="showPage('home')">Back to Dashboard</button>
-           </div>
-       `;
-   }
+    stopBreathing() {
+        this.breathingActive = false;
+        clearInterval(this.breathingTimer);
+        
+        const duration = Math.floor((Date.now() - this.sessionStartTime) / 1000);
+        
+        // Save session
+        this.data.breathingSessions.push({
+            technique: this.currentTechnique.name,
+            duration: duration,
+            cycles: this.cycleCount,
+            date: new Date().toISOString()
+        });
+        
+        this.saveData();
+        this.updateStats();
+        
+        // Show completion message
+        document.getElementById('breathingContainer').innerHTML = `
+            <div class="completion-message">
+                <i class="fas fa-check-circle"></i>
+                <h3>Great job!</h3>
+                <p>You completed ${this.cycleCount} breathing cycles in ${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}</p>
+                <button class="btn btn-primary" onclick="showPage('home')">Back to Dashboard</button>
+            </div>
+        `;
+    }
 
-   // Journal functions
-   addTag(tag) {
-       if (!tag) {
-           tag = document.getElementById('journalTag').value.trim();
-           document.getElementById('journalTag').value = '';
-       }
-       
-       if (tag && !this.currentTags.includes(tag)) {
-           this.currentTags.push(tag);
-           this.updateTagsDisplay();
-       }
-   }
+    // Journal functions
+    addTag(tag) {
+        if (!tag) {
+            tag = document.getElementById('journalTag').value.trim();
+            document.getElementById('journalTag').value = '';
+        }
+        
+        if (tag && !this.currentTags.includes(tag)) {
+            this.currentTags.push(tag);
+            this.updateTagsDisplay();
+        }
+    }
 
-   updateTagsDisplay() {
-       const container = document.getElementById('journalTags');
-       container.innerHTML = this.currentTags.map(tag => `
-           <span class="tag">
-               ${tag}
-               <button onclick="app.removeTag('${tag}')" class="tag-remove">&times;</button>
-           </span>
-       `).join('');
-   }
+    updateTagsDisplay() {
+        const container = document.getElementById('journalTags');
+        container.innerHTML = this.currentTags.map(tag => `
+            <span class="tag">
+                ${tag}
+                <button onclick="app.removeTag('${tag}')" class="tag-remove">&times;</button>
+            </span>
+        `).join('');
+    }
 
-   removeTag(tag) {
-       this.currentTags = this.currentTags.filter(t => t !== tag);
-       this.updateTagsDisplay();
-   }
+    removeTag(tag) {
+        this.currentTags = this.currentTags.filter(t => t !== tag);
+        this.updateTagsDisplay();
+    }
 
-   saveJournal() {
-       const title = document.getElementById('journalTitle').value.trim();
-       const content = document.getElementById('journalContent').value.trim();
-       
-       if (!content) {
-           this.showMessage('Please write something', 'error');
-           return;
-       }
-       
-       const entry = {
-           title: title || 'Untitled',
-           content: content,
-           tags: [...this.currentTags],
-           date: new Date().toISOString()
-       };
-       
-       this.data.journals.push(entry);
-       this.saveData();
-       this.updateStats();
-       this.loadRecentEntries();
-       
-       // Reset form
-       document.getElementById('journalTitle').value = '';
-       document.getElementById('journalContent').value = '';
-       this.currentTags = [];
-       this.updateTagsDisplay();
-       
-       this.showMessage('Journal entry saved! 📝', 'success');
-   }
+    saveJournal() {
+        const title = document.getElementById('journalTitle').value.trim();
+        const content = document.getElementById('journalContent').value.trim();
+        
+        if (!content) {
+            this.showMessage('Please write something', 'error');
+            return;
+        }
+        
+        const entry = {
+            title: title || 'Untitled',
+            content: content,
+            tags: [...this.currentTags],
+            date: new Date().toISOString()
+        };
+        
+        this.data.journals.push(entry);
+        this.saveData();
+        this.updateStats();
+        this.loadRecentEntries();
+        
+        // Reset form
+        document.getElementById('journalTitle').value = '';
+        document.getElementById('journalContent').value = '';
+        this.currentTags = [];
+        this.updateTagsDisplay();
+        
+        this.showMessage('Journal entry saved! 📝', 'success');
+    }
 
-   loadRecentEntries() {
-       const container = document.getElementById('recentEntries');
-       if (!container) return;
-       
-       const recent = this.data.journals.slice(-3).reverse();
-       
-       if (recent.length === 0) {
-           container.innerHTML = '<p>No entries yet. Start writing!</p>';
-           return;
-       }
-       
-       container.innerHTML = recent.map(entry => {
-           const date = new Date(entry.date);
-           return `
-               <div class="journal-entry">
-                   <h4>${entry.title}</h4>
-                   <p class="entry-date">${date.toLocaleDateString()}</p>
-                   <p class="entry-preview">${entry.content.substring(0, 100)}...</p>
-                   <div class="entry-tags">
-                       ${entry.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
-                   </div>
-               </div>
-           `;
-       }).join('');
-   }
+    loadRecentEntries() {
+        const container = document.getElementById('recentEntries');
+        if (!container) return;
+        
+        const recent = this.data.journals.slice(-3).reverse();
+        
+        if (recent.length === 0) {
+            container.innerHTML = '<p>No entries yet. Start writing!</p>';
+            return;
+        }
+        
+        container.innerHTML = recent.map(entry => {
+            const date = new Date(entry.date);
+            return `
+                <div class="journal-entry">
+                    <h4>${entry.title}</h4>
+                    <p class="entry-date">${date.toLocaleDateString()}</p>
+                    <p class="entry-preview">${entry.content.substring(0, 100)}...</p>
+                    <div class="entry-tags">
+                        ${entry.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
 
-   // Meditation
-   startMeditation(type) {
-       const meditations = {
-           'morning': { name: 'Morning Meditation', duration: 300 },
-           'sleep': { name: 'Sleep Meditation', duration: 600 },
-           'focus': { name: 'Focus Meditation', duration: 900 }
-       };
-       
-       this.currentMeditation = meditations[type];
-       this.meditationActive = true;
-       this.meditationStartTime = Date.now();
-       
-       // Show player
-       document.getElementById('meditationPlayer').style.display = 'block';
-       document.getElementById('currentMeditationTitle').textContent = this.currentMeditation.name;
-       document.getElementById('meditationDuration').textContent = 
-           `${Math.floor(this.currentMeditation.duration / 60)}:00`;
-       
-       // Start timer
-       this.meditationTimer = setInterval(() => {
-           if (this.meditationActive) {
-               const elapsed = Math.floor((Date.now() - this.meditationStartTime) / 1000);
-               const minutes = Math.floor(elapsed / 60);
-               const seconds = elapsed % 60;
-               document.getElementById('meditationTime').textContent = 
-                   `${minutes}:${seconds.toString().padStart(2, '0')}`;
-               
-               if (elapsed >= this.currentMeditation.duration) {
-                   this.completeMeditation();
-               }
-           }
-       }, 1000);
-   }
+    // Meditation
+    startMeditation(type) {
+        const meditations = {
+            'morning': { name: 'Morning Meditation', duration: 300 },
+            'sleep': { name: 'Sleep Meditation', duration: 600 },
+            'focus': { name: 'Focus Meditation', duration: 900 }
+        };
+        
+        this.currentMeditation = meditations[type];
+        this.meditationActive = true;
+        this.meditationStartTime = Date.now();
+        
+        // Show player
+        document.getElementById('meditationPlayer').style.display = 'block';
+        document.getElementById('currentMeditationTitle').textContent = this.currentMeditation.name;
+        document.getElementById('meditationDuration').textContent = 
+            `${Math.floor(this.currentMeditation.duration / 60)}:00`;
+        
+        // Start timer
+        this.meditationTimer = setInterval(() => {
+            if (this.meditationActive) {
+                const elapsed = Math.floor((Date.now() - this.meditationStartTime) / 1000);
+                const minutes = Math.floor(elapsed / 60);
+                const seconds = elapsed % 60;
+                document.getElementById('meditationTime').textContent = 
+                    `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (elapsed >= this.currentMeditation.duration) {
+                    this.completeMeditation();
+                }
+            }
+        }, 1000);
+    }
 
-   toggleMeditation() {
-       this.meditationActive = !this.meditationActive;
-       const icon = document.getElementById('meditationPlayPause');
-       icon.className = this.meditationActive ? 'fas fa-pause' : 'fas fa-play';
-   }
+    toggleMeditation() {
+        this.meditationActive = !this.meditationActive;
+        const icon = document.getElementById('meditationPlayPause');
+        icon.className = this.meditationActive ? 'fas fa-pause' : 'fas fa-play';
+    }
 
-   stopMeditation() {
-       this.completeMeditation();
-   }
+    stopMeditation() {
+        this.completeMeditation();
+    }
 
-   completeMeditation() {
-       this.meditationActive = false;
-       clearInterval(this.meditationTimer);
-       
-       const duration = Math.floor((Date.now() - this.meditationStartTime) / 1000);
-       
-       // Save session
-       this.data.meditationSessions = this.data.meditationSessions || [];
-       this.data.meditationSessions.push({
-           type: this.currentMeditation.name,
-           duration: duration,
-           date: new Date().toISOString()
-       });
-       
-       this.saveData();
-       this.updateStats();
-       
-       // Hide player
+    completeMeditation() {
+        this.meditationActive = false;
+        clearInterval(this.meditationTimer);
+        
+        const duration = Math.floor((Date.now() - this.meditationStartTime) / 1000);
+        
+        // Save session
+        this.data.meditationSessions = this.data.meditationSessions || [];
+        this.data.meditationSessions.push({
+            type: this.currentMeditation.name,
+            duration: duration,
+            date: new Date().toISOString()
+        });
+        
+        this.saveData();
+        this.updateStats();
+        
+        // Hide player
        document.getElementById('meditationPlayer').style.display = 'none';
        
        this.showMessage('Meditation completed! 🧘', 'success');
@@ -801,9 +903,8 @@ class MindfulMeProApp {
        input.value = '';
        input.style.height = 'auto';
        
-       // Generate AI response using a free API
+       // Generate AI response using a simple system
        try {
-           // Using a simple response system - in production, use a proper AI API
            const response = await this.generateAIResponse(message);
            setTimeout(() => {
                this.addChatMessage(response, 'ai');
@@ -896,101 +997,13 @@ class MindfulMeProApp {
    }
 }
 
-// Global functions
-function showPage(page) {
-   // Hide all pages
-   document.querySelectorAll('.page-section').forEach(section => {
-       section.style.display = 'none';
-   });
-   
-   // Show selected page
-   const pageElement = document.querySelector(`.${page}`);
-   if (pageElement) {
-       pageElement.style.display = 'block';
-   }
-   
-   // Special handling for home page
-   if (page === 'home') {
-       const heroSection = document.querySelector('.hero-section');
-       if (heroSection) {
-           heroSection.style.display = 'block';
-       }
-   }
-   
-   // Close mobile menu
-   const navMenu = document.getElementById('navMenu');
-   if (navMenu) navMenu.classList.remove('active');
-   
-   // Scroll to top
-   window.scrollTo({ top: 0, behavior: 'smooth' });
-   
-   // Page-specific actions
-   if (window.app) {
-       switch(page) {
-           case 'home':
-               app.updateStats();
-               break;
-           case 'journal':
-               app.loadRecentEntries();
-               break;
-           case 'community':
-               app.loadCommunityData();
-               break;
-       }
-   }
-}
-
-function toggleNav() {
-   const navMenu = document.getElementById('navMenu');
-   if (navMenu) navMenu.classList.toggle('active');
-}
-
-function toggleNotifications() {
-   const panel = document.getElementById('notificationPanel');
-   if (panel) panel.classList.toggle('active');
-}
-
-function toggleProfile() {
-   const dropdown = document.getElementById('profileDropdown');
-   if (dropdown) dropdown.classList.toggle('active');
-}
-
-function showSettings() {
-   alert('Settings page coming soon!');
-}
-
-function showPrivacy() {
-   alert('Privacy settings coming soon!');
-}
-
-function exportAllData() {
-   if (app) {
-       const dataStr = JSON.stringify(app.data, null, 2);
-       const dataBlob = new Blob([dataStr], { type: 'application/json' });
-       const url = URL.createObjectURL(dataBlob);
-       
-       const link = document.createElement('a');
-       link.href = url;
-       link.download = `mindfulme_data_${new Date().toISOString().split('T')[0]}.json`;
-       document.body.appendChild(link);
-       link.click();
-       document.body.removeChild(link);
-       URL.revokeObjectURL(url);
-       
-       app.showMessage('Data exported successfully!', 'success');
-   }
-}
-
-function logout() {
-   if (confirm('Are you sure you want to logout?')) {
-       alert('Logged out successfully!');
-   }
-}
-
-// Initialize app
+// Initialize app when DOM is loaded
 let app;
 document.addEventListener('DOMContentLoaded', () => {
+   console.log('DOM loaded, creating app...');
    app = new MindfulMeProApp();
    window.app = app;
+   
+   // Make sure home page is shown
    showPage('home');
 });

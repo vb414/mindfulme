@@ -172,30 +172,49 @@ class MindfulMeProApp {
         }
     }
 
-    // Fixed quote loading
-    async loadDailyQuote() {
-        const quoteEl = document.getElementById('dailyQuote');
-        const authorEl = document.getElementById('quoteAuthor');
-        
-        // Set a default quote immediately to remove "Loading..."
-        if (quoteEl) {
-            quoteEl.textContent = "Every day is a new beginning. Take a deep breath and start again.";
-            if (authorEl) authorEl.textContent = "— Unknown";
-        }
-        
-        try {
-            const response = await fetch('https://api.quotable.io/random?tags=inspirational|happiness|wisdom&maxLength=100');
-            if (response.ok) {
-                const data = await response.json();
-                if (data.content) {
-                    quoteEl.textContent = data.content;
-                    if (authorEl) authorEl.textContent = `— ${data.author}`;
-                }
-            }
-        } catch (error) {
-            console.log('Using default quote');
-        }
+    // Fixed quote loading with local quotes
+async loadDailyQuote() {
+    const quotes = [
+        { content: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
+        { content: "Every moment is a fresh beginning.", author: "T.S. Eliot" },
+        { content: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
+        { content: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt" },
+        { content: "It is during our darkest moments that we must focus to see the light.", author: "Aristotle" },
+        { content: "You are never too old to set another goal or to dream a new dream.", author: "C.S. Lewis" },
+        { content: "Success is not final, failure is not fatal: it is the courage to continue that counts.", author: "Winston Churchill" },
+        { content: "The way to get started is to quit talking and begin doing.", author: "Walt Disney" },
+        { content: "Don't watch the clock; do what it does. Keep going.", author: "Sam Levenson" },
+        { content: "Everything you've ever wanted is on the other side of fear.", author: "George Addair" }
+    ];
+    
+    const quoteEl = document.getElementById('dailyQuote');
+    const authorEl = document.getElementById('quoteAuthor');
+    
+    // Pick a random quote
+    const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+    
+    if (quoteEl) {
+        quoteEl.textContent = randomQuote.content;
     }
+    if (authorEl) {
+        authorEl.textContent = `— ${randomQuote.author}`;
+    }
+    
+    // Try to fetch from API as backup
+    try {
+        const response = await fetch('https://api.quotable.io/random?tags=inspirational|happiness|wisdom&maxLength=100');
+        if (response.ok) {
+            const data = await response.json();
+            if (data.content && quoteEl) {
+                quoteEl.textContent = data.content;
+                if (authorEl) authorEl.textContent = `— ${data.author}`;
+            }
+        }
+    } catch (error) {
+        // Keep the local quote if API fails
+        console.log('Using local quote');
+    }
+}
 
     // Load community data (simulated)
     loadCommunityData() {

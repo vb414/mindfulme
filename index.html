@@ -29,28 +29,28 @@
                 <span></span><span></span><span></span>
             </button>
             <div class="nav-menu" id="navMenu">
-                <a href="#" class="nav-link" onclick="showPage('home')">
+                <a href="#" class="nav-link" onclick="showPage('home'); return false;">
                     <i class="fas fa-home"></i> Dashboard
                 </a>
-                <a href="#" class="nav-link" onclick="showPage('mood')">
+                <a href="#" class="nav-link" onclick="showPage('mood'); return false;">
                     <i class="fas fa-smile"></i> Mood
                 </a>
-                <a href="#" class="nav-link" onclick="showPage('breathe')">
+                <a href="#" class="nav-link" onclick="showPage('breathe'); return false;">
                     <i class="fas fa-wind"></i> Breathe
                 </a>
-                <a href="#" class="nav-link" onclick="showPage('journal')">
+                <a href="#" class="nav-link" onclick="showPage('journal'); return false;">
                     <i class="fas fa-book"></i> Journal
                 </a>
-                <a href="#" class="nav-link" onclick="showPage('insights')">
+                <a href="#" class="nav-link" onclick="showPage('insights'); return false;">
                     <i class="fas fa-chart-line"></i> Analytics
                 </a>
-                <a href="#" class="nav-link" onclick="showPage('meditation')">
+                <a href="#" class="nav-link" onclick="showPage('meditation'); return false;">
                     <i class="fas fa-spa"></i> Meditate
                 </a>
-                <a href="#" class="nav-link" onclick="showPage('community')">
+                <a href="#" class="nav-link" onclick="showPage('community'); return false;">
                     <i class="fas fa-users"></i> Community
                 </a>
-                <a href="#" class="nav-link" onclick="showPage('ai-therapist')">
+                <a href="#" class="nav-link" onclick="showPage('ai-therapist'); return false;">
                     <i class="fas fa-robot"></i> AI Therapist
                 </a>
             </div>
@@ -104,23 +104,23 @@
             </div>
         </div>
         <div class="profile-menu">
-            <a href="#" onclick="showSettings()">
+            <a href="#" onclick="showSettings(); return false;">
                 <i class="fas fa-cog"></i> Settings
             </a>
-            <a href="#" onclick="showPrivacy()">
+            <a href="#" onclick="showPrivacy(); return false;">
                 <i class="fas fa-lock"></i> Privacy
             </a>
-            <a href="#" onclick="exportAllData()">
+            <a href="#" onclick="exportAllData(); return false;">
                 <i class="fas fa-download"></i> Export Data
             </a>
-            <a href="#" onclick="logout()">
+            <a href="#" onclick="logout(); return false;">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </a>
         </div>
     </div>
 
     <!-- Hero Section / Dashboard -->
-    <div class="hero-section page-section">
+    <div class="hero-section page-section" id="home">
         <div class="container">
             <!-- Welcome Section -->
             <div class="welcome-section glassmorphism">
@@ -145,35 +145,13 @@
             <!-- Daily Quote -->
             <div class="daily-quote glassmorphism">
                 <i class="fas fa-quote-left"></i>
-                <p id="dailyQuote">Every moment is a fresh beginning. Take a deep breath and start again.</p>
+                <p id="dailyQuote">Every moment is a fresh beginning.</p>
                 <cite id="quoteAuthor">— T.S. Eliot</cite>
             </div>
 
-            <!-- ADD THIS SCRIPT RIGHT HERE -->
-            <script>
-                // Immediate quote update
-                const quotes = [
-                    { text: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
-                    { text: "Every moment is a fresh beginning.", author: "T.S. Eliot" },
-                    { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
-                    { text: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt" },
-                    { text: "It is during our darkest moments that we must focus to see the light.", author: "Aristotle" },
-                    { text: "You are never too old to set another goal or to dream a new dream.", author: "C.S. Lewis" },
-                    { text: "Success is not final, failure is not fatal: it is the courage to continue that counts.", author: "Winston Churchill" },
-                    { text: "The way to get started is to quit talking and begin doing.", author: "Walt Disney" },
-                    { text: "Don't watch the clock; do what it does. Keep going.", author: "Sam Levenson" },
-                    { text: "Everything you've ever wanted is on the other side of fear.", author: "George Addair" }
-                ];
-                
-                const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-                document.getElementById('dailyQuote').textContent = randomQuote.text;
-                document.getElementById('quoteAuthor').textContent = `— ${randomQuote.author}`;
-            </script>
-
-
             <!-- Stats Dashboard -->
             <div class="stats-grid">
-                <div class="stat-card glassmorphism" data-tilt>
+                <div class="stat-card glassmorphism">
                     <div class="stat-icon-wrapper">
                         <div class="stat-icon-bg"></div>
                         <i class="fas fa-fire stat-icon"></i>
@@ -187,7 +165,7 @@
                     </div>
                 </div>
 
-                <div class="stat-card glassmorphism" data-tilt>
+                <div class="stat-card glassmorphism">
                     <div class="stat-icon-wrapper">
                         <div class="stat-icon-bg"></div>
                         <i class="fas fa-smile stat-icon"></i>
@@ -199,7 +177,7 @@
                     </div>
                 </div>
 
-                <div class="stat-card glassmorphism" data-tilt>
+                <div class="stat-card glassmorphism">
                     <div class="stat-icon-wrapper">
                         <div class="stat-icon-bg"></div>
                         <i class="fas fa-brain stat-icon"></i>
@@ -211,7 +189,7 @@
                     </div>
                 </div>
 
-                <div class="stat-card glassmorphism" data-tilt>
+                <div class="stat-card glassmorphism">
                     <div class="stat-icon-wrapper">
                         <div class="stat-icon-bg"></div>
                         <i class="fas fa-book stat-icon"></i>
@@ -282,7 +260,7 @@
     </div>
 
     <!-- Mood Tracker Section -->
-    <div class="mood-tracker page-section" style="display: none;">
+    <div class="mood-tracker page-section" id="mood" style="display: none;">
         <div class="container">
             <div class="page-header">
                 <h2 class="page-title">How are you feeling?</h2>
@@ -291,47 +269,47 @@
 
             <div class="mood-section glassmorphism">
                 <div class="mood-options">
-                    <div class="mood-btn" onclick="app.selectMood(1)">
+                    <div class="mood-btn" onclick="selectMood(1, this)">
                         <span class="mood-emoji">😢</span>
                         <span class="mood-label">Very Sad</span>
                     </div>
-                    <div class="mood-btn" onclick="app.selectMood(2)">
+                    <div class="mood-btn" onclick="selectMood(2, this)">
                         <span class="mood-emoji">😟</span>
                         <span class="mood-label">Sad</span>
                     </div>
-                    <div class="mood-btn" onclick="app.selectMood(3)">
+                    <div class="mood-btn" onclick="selectMood(3, this)">
                         <span class="mood-emoji">😐</span>
                         <span class="mood-label">Neutral</span>
                     </div>
-                    <div class="mood-btn" onclick="app.selectMood(4)">
+                    <div class="mood-btn" onclick="selectMood(4, this)">
                         <span class="mood-emoji">🙂</span>
                         <span class="mood-label">Happy</span>
                     </div>
-                    <div class="mood-btn" onclick="app.selectMood(5)">
+                    <div class="mood-btn" onclick="selectMood(5, this)">
                         <span class="mood-emoji">😊</span>
                         <span class="mood-label">Very Happy</span>
                     </div>
                 </div>
 
-                <div class="mood-factors" style="display: none;">
+                <div class="mood-factors" id="moodFactors" style="display: none;">
                     <h3>What's influencing your mood?</h3>
                     <div class="factor-chips">
-                        <button class="factor-chip" onclick="app.toggleFactor('Sleep')">
+                        <button class="factor-chip" onclick="toggleFactor('Sleep', this)">
                             <i class="fas fa-bed"></i> Sleep
                         </button>
-                        <button class="factor-chip" onclick="app.toggleFactor('Exercise')">
+                        <button class="factor-chip" onclick="toggleFactor('Exercise', this)">
                             <i class="fas fa-running"></i> Exercise
                         </button>
-                        <button class="factor-chip" onclick="app.toggleFactor('Diet')">
+                        <button class="factor-chip" onclick="toggleFactor('Diet', this)">
                             <i class="fas fa-apple-alt"></i> Diet
                         </button>
-                        <button class="factor-chip" onclick="app.toggleFactor('Social')">
+                        <button class="factor-chip" onclick="toggleFactor('Social', this)">
                             <i class="fas fa-users"></i> Social
                         </button>
-                        <button class="factor-chip" onclick="app.toggleFactor('Work')">
+                        <button class="factor-chip" onclick="toggleFactor('Work', this)">
                             <i class="fas fa-briefcase"></i> Work
                         </button>
-                        <button class="factor-chip" onclick="app.toggleFactor('Weather')">
+                        <button class="factor-chip" onclick="toggleFactor('Weather', this)">
                             <i class="fas fa-cloud-sun"></i> Weather
                         </button>
                     </div>
@@ -340,7 +318,7 @@
                         <textarea id="moodNote" placeholder="Add a note about how you're feeling..." rows="4"></textarea>
                     </div>
 
-                    <button class="btn btn-primary save-mood-btn" onclick="app.saveMood()">
+                    <button class="btn btn-primary save-mood-btn" onclick="saveMood()">
                         <i class="fas fa-save"></i> Save Mood
                     </button>
                 </div>
@@ -348,13 +326,15 @@
 
             <div class="mood-history glassmorphism">
                 <h3>Recent Moods</h3>
-                <div id="moodHistory"></div>
+                <div id="moodHistory">
+                    <p>No mood entries yet. Start tracking!</p>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Breathing Exercise Section -->
-    <div class="breathing-exercise page-section" style="display: none;">
+    <div class="breathing-exercise page-section" id="breathe" style="display: none;">
         <div class="container">
             <div class="page-header">
                 <h2 class="page-title">Breathing Exercises</h2>
@@ -362,21 +342,21 @@
             </div>
 
             <div class="breathing-techniques" id="breathingTechniques">
-                <div class="technique-card glassmorphism" onclick="app.startBreathing('478')">
+                <div class="technique-card glassmorphism" onclick="startBreathing('478')">
                     <div class="technique-icon">🌙</div>
                     <h3>4-7-8 Breathing</h3>
                     <p>For relaxation & sleep</p>
                     <div class="technique-timing">Inhale 4 • Hold 7 • Exhale 8</div>
                 </div>
 
-                <div class="technique-card glassmorphism" onclick="app.startBreathing('box')">
+                <div class="technique-card glassmorphism" onclick="startBreathing('box')">
                     <div class="technique-icon">📦</div>
                     <h3>Box Breathing</h3>
                     <p>For focus & calm</p>
                     <div class="technique-timing">Inhale 4 • Hold 4 • Exhale 4 • Hold 4</div>
                 </div>
 
-                <div class="technique-card glassmorphism" onclick="app.startBreathing('calm')">
+                <div class="technique-card glassmorphism" onclick="startBreathing('calm')">
                     <div class="technique-icon">🌊</div>
                     <h3>Calm Breathing</h3>
                     <p>Quick relaxation</p>
@@ -391,7 +371,7 @@
     </div>
 
     <!-- Journal Section -->
-    <div class="journal page-section" style="display: none;">
+    <div class="journal page-section" id="journal" style="display: none;">
         <div class="container">
             <div class="page-header">
                 <h2 class="page-title">Daily Journal</h2>
@@ -408,26 +388,28 @@
                 <textarea id="journalContent" placeholder="Start writing..." rows="10"></textarea>
                 
                 <div class="journal-tags">
-                    <input type="text" id="journalTag" placeholder="Add a tag...">
-                    <button onclick="app.addTag()" class="btn btn-secondary">Add Tag</button>
+                    <input type="text" id="journalTag" placeholder="Add a tag..." onkeypress="if(event.key==='Enter'){addTag();event.preventDefault();}">
+                    <button onclick="addTag()" class="btn btn-secondary">Add Tag</button>
                 </div>
                 
                 <div id="journalTags" class="tags-display"></div>
                 
-                <button class="btn btn-primary" onclick="app.saveJournal()">
+                <button class="btn btn-primary" onclick="saveJournal()">
                     <i class="fas fa-save"></i> Save Entry
                 </button>
             </div>
 
             <div class="recent-entries glassmorphism">
                 <h3>Recent Entries</h3>
-                <div id="recentEntries"></div>
+                <div id="recentEntries">
+                    <p>No entries yet. Start writing!</p>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Meditation Section -->
-    <div class="meditation page-section" style="display: none;">
+    <div class="meditation page-section" id="meditation" style="display: none;">
         <div class="container">
             <div class="page-header">
                 <h2 class="page-title">Meditation Studio</h2>
@@ -442,7 +424,7 @@
                     </div>
                     <h4>Morning Meditation</h4>
                     <p>Start your day mindfully</p>
-                    <button class="play-btn" onclick="app.startMeditation('morning')">
+                    <button class="play-btn" onclick="startMeditation('morning')">
                         <i class="fas fa-play"></i>
                     </button>
                 </div>
@@ -454,7 +436,7 @@
                     </div>
                     <h4>Sleep Meditation</h4>
                     <p>Drift into peaceful sleep</p>
-                    <button class="play-btn" onclick="app.startMeditation('sleep')">
+                    <button class="play-btn" onclick="startMeditation('sleep')">
                         <i class="fas fa-play"></i>
                     </button>
                 </div>
@@ -466,7 +448,7 @@
                     </div>
                     <h4>Focus Meditation</h4>
                     <p>Enhance concentration</p>
-                    <button class="play-btn" onclick="app.startMeditation('focus')">
+                    <button class="play-btn" onclick="startMeditation('focus')">
                         <i class="fas fa-play"></i>
                     </button>
                 </div>
@@ -478,20 +460,20 @@
                     <div class="breathing-orb"></div>
                 </div>
                 <div class="player-controls">
-                    <button onclick="app.toggleMeditation()">
+                    <button onclick="toggleMeditation()">
                         <i class="fas fa-pause" id="meditationPlayPause"></i>
                     </button>
                 </div>
                 <div class="player-time">
                     <span id="meditationTime">0:00</span> / <span id="meditationDuration">5:00</span>
                 </div>
-                <button class="btn btn-secondary" onclick="app.stopMeditation()">Stop</button>
+                <button class="btn btn-secondary" onclick="stopMeditation()">Stop</button>
             </div>
         </div>
     </div>
 
     <!-- Community Section -->
-    <div class="community page-section" style="display: none;">
+    <div class="community page-section" id="community" style="display: none;">
         <div class="container">
             <div class="page-header">
                 <h2 class="page-title">Community Support</h2>
@@ -538,13 +520,19 @@
 
             <div class="motivational-messages glassmorphism">
                 <h3>Daily Motivation</h3>
-                <div id="motivationalMessage"></div>
+                <div id="motivationalMessage">
+                    <div class="message-card">
+                        <i class="fas fa-quote-left"></i>
+                        <p>You are braver than you believe, stronger than you seem, and smarter than you think.</p>
+                        <cite>— A.A. Milne</cite>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- AI Therapist Section -->
-    <div class="ai-therapist page-section" style="display: none;">
+    <div class="ai-therapist page-section" id="ai-therapist" style="display: none;">
         <div class="container">
             <div class="page-header">
                 <h2 class="page-title">AI Mental Health Assistant</h2>
@@ -564,8 +552,8 @@
                 </div>
 
                 <div class="chat-input-container">
-                    <textarea id="chatInput" placeholder="Type your message..." rows="1"></textarea>
-                    <button class="send-btn" onclick="app.sendMessage()">
+                    <textarea id="chatInput" placeholder="Type your message..." rows="1" onkeypress="if(event.key==='Enter' && !event.shiftKey){sendMessage();event.preventDefault();}"></textarea>
+                    <button class="send-btn" onclick="sendMessage()">
                         <i class="fas fa-paper-plane"></i>
                     </button>
                 </div>
@@ -579,7 +567,7 @@
     </div>
 
     <!-- Analytics/Insights Section -->
-    <div class="insights page-section" style="display: none;">
+    <div class="insights page-section" id="insights" style="display: none;">
         <div class="container">
             <div class="page-header">
                 <h2 class="page-title">Your Insights</h2>
@@ -599,7 +587,9 @@
 
                 <div class="analytics-card glassmorphism">
                     <h3>Top Mood Factors</h3>
-                    <div id="moodFactors"></div>
+                    <div id="moodFactors">
+                        <p>Track more moods to see patterns</p>
+                    </div>
                 </div>
 
                 <div class="analytics-card glassmorphism">

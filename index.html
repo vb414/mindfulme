@@ -47,11 +47,11 @@
                 <a href="#" class="nav-link" onclick="showPage('meditation'); return false;">
                     <i class="fas fa-spa"></i> Meditate
                 </a>
-                <a href="#" class="nav-link" onclick="showPage('community'); return false;">
-                    <i class="fas fa-users"></i> Community
+                <a href="#" class="nav-link" onclick="showPage('resources'); return false;">
+                    <i class="fas fa-heart"></i> Resources
                 </a>
                 <a href="#" class="nav-link" onclick="showPage('ai-therapist'); return false;">
-                    <i class="fas fa-robot"></i> AI Therapist
+                    <i class="fas fa-robot"></i> AI Assistant
                 </a>
             </div>
             <div class="nav-actions">
@@ -235,7 +235,7 @@
                     <div class="feature-icon floating">
                         <i class="fas fa-robot"></i>
                     </div>
-                    <h3>AI Therapist</h3>
+                    <h3>AI Assistant</h3>
                     <p>24/7 support</p>
                     <div class="feature-meta">
                         <span class="badge-ai">AI Powered</span>
@@ -422,7 +422,7 @@
                         <img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=300" alt="Morning">
                         <div class="duration-badge">5 min</div>
                     </div>
-                    <h4>Morning Meditation</h4>
+                    <h4>Morning Energy</h4>
                     <p>Start your day mindfully</p>
                     <button class="play-btn" onclick="startMeditation('morning')">
                         <i class="fas fa-play"></i>
@@ -434,8 +434,8 @@
                         <img src="https://images.unsplash.com/photo-1511295742362-92c96b1cf484?w=300" alt="Sleep">
                         <div class="duration-badge">10 min</div>
                     </div>
-                    <h4>Sleep Meditation</h4>
-                    <p>Drift into peaceful sleep</p>
+                    <h4>Deep Sleep</h4>
+                    <p>Drift into peaceful rest</p>
                     <button class="play-btn" onclick="startMeditation('sleep')">
                         <i class="fas fa-play"></i>
                     </button>
@@ -446,7 +446,7 @@
                         <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300" alt="Focus">
                         <div class="duration-badge">15 min</div>
                     </div>
-                    <h4>Focus Meditation</h4>
+                    <h4>Focus & Clarity</h4>
                     <p>Enhance concentration</p>
                     <button class="play-btn" onclick="startMeditation('focus')">
                         <i class="fas fa-play"></i>
@@ -457,8 +457,15 @@
             <div class="meditation-player glassmorphism" id="meditationPlayer" style="display: none;">
                 <h3 id="currentMeditationTitle">Meditation</h3>
                 <div class="player-visual">
-                    <div class="breathing-orb"></div>
+                    <div class="audio-visualizer">
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                    </div>
                 </div>
+                <audio id="meditationAudio" style="display: none;"></audio>
                 <div class="player-controls">
                     <button onclick="toggleMeditation()">
                         <i class="fas fa-pause" id="meditationPlayPause"></i>
@@ -472,60 +479,93 @@
         </div>
     </div>
 
-    <!-- Community Section -->
-    <div class="community page-section" id="community" style="display: none;">
+    <!-- Resources Section (Replacing Community) -->
+    <div class="resources page-section" id="resources" style="display: none;">
         <div class="container">
             <div class="page-header">
-                <h2 class="page-title">Community Support</h2>
-                <p class="page-subtitle">You're not alone</p>
+                <h2 class="page-title">Mental Health Resources</h2>
+                <p class="page-subtitle">Help is always available</p>
             </div>
 
-            <div class="community-stats">
-                <div class="stat-item glassmorphism">
-                    <i class="fas fa-users"></i>
-                    <h3 id="communityMembers">2,847</h3>
-                    <p>Active Members</p>
+            <div class="resources-grid">
+                <div class="resource-card glassmorphism">
+                    <div class="resource-icon">
+                        <i class="fas fa-phone-alt"></i>
+                    </div>
+                    <h3>Crisis Hotlines</h3>
+                    <div class="resource-content">
+                        <p><strong>National Suicide Prevention Lifeline</strong><br>
+                        988 or 1-800-273-8255</p>
+                        <p><strong>Crisis Text Line</strong><br>
+                        Text HOME to 741741</p>
+                        <p><strong>NAMI Helpline</strong><br>
+                        1-800-950-NAMI (6264)</p>
+                    </div>
                 </div>
-                <div class="stat-item glassmorphism">
-                    <i class="fas fa-comments"></i>
-                    <h3 id="todayPosts">156</h3>
-                    <p>Posts Today</p>
-                </div>
-                <div class="stat-item glassmorphism">
-                    <i class="fas fa-heart"></i>
-                    <h3>98%</h3>
-                    <p>Support Rate</p>
-                </div>
-            </div>
 
-            <div class="community-feed glassmorphism">
-                <h3>Recent Posts</h3>
-                <div id="communityFeed">
-                    <div class="community-post">
-                        <div class="post-header">
-                            <img src="https://ui-avatars.com/api/?name=Sarah&background=6366f1&color=fff" alt="User">
-                            <div>
-                                <h4>Sarah M.</h4>
-                                <span>2 hours ago</span>
+                <div class="resource-card glassmorphism">
+                    <div class="resource-icon">
+                        <i class="fas fa-book-medical"></i>
+                    </div>
+                    <h3>Self-Help Guides</h3>
+                    <div class="resource-list">
+                        <a href="#" onclick="showGuide('anxiety')">
+                            <i class="fas fa-chevron-right"></i> Managing Anxiety
+                        </a>
+                        <a href="#" onclick="showGuide('depression')">
+                            <i class="fas fa-chevron-right"></i> Coping with Depression
+                        </a>
+                        <a href="#" onclick="showGuide('stress')">
+                            <i class="fas fa-chevron-right"></i> Stress Reduction
+                        </a>
+                        <a href="#" onclick="showGuide('sleep')">
+                            <i class="fas fa-chevron-right"></i> Better Sleep Habits
+                        </a>
+                    </div>
+                </div>
+
+                <div class="resource-card glassmorphism">
+                    <div class="resource-icon">
+                        <i class="fas fa-hands-helping"></i>
+                    </div>
+                    <h3>Find Professional Help</h3>
+                    <div class="resource-content">
+                        <p>Connect with licensed therapists and counselors in your area.</p>
+                        <button class="btn btn-primary" onclick="findTherapist()">
+                            <i class="fas fa-search"></i> Find a Therapist
+                        </button>
+                    </div>
+                </div>
+
+                <div class="resource-card glassmorphism">
+                    <div class="resource-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h3>Learn & Grow</h3>
+                    <div class="course-list">
+                        <div class="course-item">
+                            <h4>Mindfulness Basics</h4>
+                            <p>Learn fundamental mindfulness techniques</p>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" style="width: 35%;"></div>
                             </div>
                         </div>
-                        <p>Just completed my 30-day meditation streak! Feeling more centered than ever. 🧘‍♀️</p>
-                        <div class="post-actions">
-                            <button><i class="fas fa-heart"></i> 45</button>
-                            <button><i class="fas fa-comment"></i> 12</button>
+                        <div class="course-item">
+                            <h4>Emotional Regulation</h4>
+                            <p>Master your emotional responses</p>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" style="width: 0%;"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="motivational-messages glassmorphism">
-                <h3>Daily Motivation</h3>
-                <div id="motivationalMessage">
-                    <div class="message-card">
-                        <i class="fas fa-quote-left"></i>
-                        <p>You are braver than you believe, stronger than you seem, and smarter than you think.</p>
-                        <cite>— A.A. Milne</cite>
-                    </div>
+            <div class="emergency-banner glassmorphism">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div>
+                    <h4>If you're in immediate danger</h4>
+                    <p>Please call 911 or go to your nearest emergency room</p>
                 </div>
             </div>
         </div>
@@ -536,7 +576,7 @@
         <div class="container">
             <div class="page-header">
                 <h2 class="page-title">AI Mental Health Assistant</h2>
-                <p class="page-subtitle">I'm here to listen</p>
+                <p class="page-subtitle">I'm here to listen and support you</p>
             </div>
 
             <div class="chat-container glassmorphism">
@@ -546,7 +586,7 @@
                             <i class="fas fa-robot"></i>
                         </div>
                         <div class="message-content">
-                            <p>Hello! I'm here to listen and support you. How are you feeling today?</p>
+                            <p>Hello! I'm MindfulMe AI, your mental health support assistant. I'm here to listen, provide coping strategies, and support you. How are you feeling today?</p>
                         </div>
                     </div>
                 </div>
@@ -561,7 +601,7 @@
 
             <div class="ai-disclaimer glassmorphism">
                 <i class="fas fa-info-circle"></i>
-                <p>This AI provides support but is not a replacement for professional help. If you're in crisis, please contact emergency services.</p>
+                <p>This AI provides support but is not a replacement for professional help. If you're in crisis, please contact emergency services or call 988.</p>
             </div>
         </div>
     </div>
@@ -587,7 +627,7 @@
 
                 <div class="analytics-card glassmorphism">
                     <h3>Top Mood Factors</h3>
-                    <div id="moodFactors">
+                    <div id="moodFactorsAnalytics">
                         <p>Track more moods to see patterns</p>
                     </div>
                 </div>
@@ -596,9 +636,28 @@
                     <h3>Wellness Score</h3>
                     <div class="wellness-score-display">
                         <div class="score-circle">
-                            <span class="score-value">82</span>
+                            <span class="score-value" id="wellnessScore">82</span>
                             <span class="score-label">Good</span>
                         </div>
+                        <p class="score-description">Based on your recent activity and mood patterns</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="insights-summary glassmorphism">
+                <h3>Key Insights</h3>
+                <div id="keyInsights">
+                    <div class="insight-item">
+                        <i class="fas fa-lightbulb"></i>
+                        <p>Your mood tends to improve after breathing exercises</p>
+                    </div>
+                    <div class="insight-item">
+                        <i class="fas fa-chart-line"></i>
+                        <p>You're most productive in the morning hours</p>
+                    </div>
+                    <div class="insight-item">
+                        <i class="fas fa-moon"></i>
+                        <p>Better sleep correlates with higher mood scores</p>
                     </div>
                 </div>
             </div>

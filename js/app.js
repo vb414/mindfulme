@@ -1159,7 +1159,7 @@ class MindfulMeProApp {
     }
     
     
-    const API_KEY = 'AIzaSyC91Y4lkhM_YM6I5_-gAktSJYjmvxRPqjc'; // 
+    const API_KEY = ''; // 
     
     try {
         // Build conversation context

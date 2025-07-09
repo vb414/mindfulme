@@ -1967,3 +1967,195 @@ a:focus {
 .meditation-player {
     z-index: 100 !important;
 }
+
+/* CRITICAL FIXES FOR FUNCTIONALITY */
+
+/* Fix stat cards height issue */
+.stat-card {
+    padding: 2rem !important;
+    position: relative !important;
+    overflow: hidden !important;
+    cursor: pointer !important;
+    transition: all var(--transition-base) !important;
+    height: auto !important;
+    min-height: 200px !important;
+    max-height: 250px !important;
+}
+
+/* Fix canvas sizing */
+#miniMoodChart {
+    max-height: 40px !important;
+    width: 100% !important;
+    display: block !important;
+}
+
+/* Fix stats grid */
+.stats-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) !important;
+    gap: 1.5rem !important;
+    margin-bottom: 3rem !important;
+    align-items: start !important;
+}
+
+/* Fix stat content */
+.stat-content {
+    position: relative !important;
+    z-index: 1 !important;
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+}
+
+/* Fix page sections */
+.page-section {
+    display: none;
+}
+
+.hero-section {
+    display: block !important;
+}
+
+/* Fix navigation z-index */
+.navbar {
+    z-index: 1000 !important;
+}
+
+.nav-menu {
+    z-index: 999 !important;
+}
+
+/* Fix dropdowns */
+.notification-panel,
+.profile-dropdown {
+    z-index: 1001 !important;
+}
+
+/* Fix breathing container */
+.breathing-container {
+    text-align: center;
+    padding: 2rem;
+}
+
+.breathing-visual {
+    margin: 2rem 0;
+}
+
+.breathing-circle {
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+    background: var(--glass-bg);
+    border: 3px solid var(--primary);
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all 4s ease-in-out;
+}
+
+.breathing-circle.inhale {
+    transform: scale(1.2);
+    border-color: var(--success);
+}
+
+.breathing-circle.hold {
+    border-color: var(--warning);
+}
+
+.breathing-circle.exhale {
+    transform: scale(0.8);
+    border-color: var(--info);
+}
+
+.breathing-text {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.breathing-counter {
+    font-size: 3rem;
+    font-weight: bold;
+    color: var(--primary);
+}
+
+/* Fix completion message */
+.completion-message {
+    text-align: center;
+    padding: 3rem;
+}
+
+.completion-message i {
+    font-size: 4rem;
+    color: var(--success);
+    margin-bottom: 1rem;
+}
+
+/* Fix mood factors display */
+.mood-factors {
+    margin-top: 2rem;
+    animation: fadeIn 0.5s ease;
+}
+
+/* Fix message toast visibility */
+.message-toast {
+    position: fixed !important;
+    bottom: 2rem !important;
+    right: 2rem !important;
+    z-index: 2000 !important;
+}
+
+/* Ensure buttons are clickable */
+button {
+    cursor: pointer !important;
+}
+
+/* Fix feature cards hover */
+.feature-card {
+    cursor: pointer !important;
+    transition: all var(--transition-base) !important;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px) !important;
+}
+
+/* Fix navigation links */
+.nav-link {
+    cursor: pointer !important;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Mobile menu fix */
+@media (max-width: 768px) {
+    .nav-menu {
+        position: fixed !important;
+        left: -100% !important;
+        top: 70px !important;
+        width: 100% !important;
+        height: calc(100vh - 70px) !important;
+        background: var(--surface) !important;
+        flex-direction: column !important;
+        padding: 2rem !important;
+        transition: left var(--transition-base) !important;
+        overflow-y: auto !important;
+    }
+    
+    .nav-menu.active {
+        left: 0 !important;
+    }
+}

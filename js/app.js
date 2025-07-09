@@ -879,4 +879,105 @@ class MindfulMeProApp {
             return "That's wonderful to hear! Celebrating positive moments is important. What contributed to these good feelings?";
         }
         
-        if (lowerMessage.
+        if (lowerMessage.includes('sleep')) {
+           return "Good sleep is crucial for mental health. Try our sleep meditation or establish a calming bedtime routine. What sleep challenges are you facing?";
+       }
+       
+       if (lowerMessage.includes('stress') || lowerMessage.includes('stressed')) {
+           return "Stress can be overwhelming. Remember to take breaks and practice self-care. Our breathing exercises and meditation sessions can help you manage stress better.";
+       }
+       
+       if (lowerMessage.includes('help') || lowerMessage.includes('support')) {
+           return "I'm here to support you. You can try mood tracking to understand your patterns, journaling to express your thoughts, or meditation to find peace. What would you like to explore?";
+       }
+       
+       // Default response
+       return "Thank you for sharing. I'm here to listen and support you. What else would you like to talk about?";
+   }
+
+   addChatMessage(message, sender) {
+       const chatMessages = document.getElementById('chatMessages');
+       const messageDiv = document.createElement('div');
+       messageDiv.className = `message ${sender}-message`;
+       
+       if (sender === 'ai') {
+           messageDiv.innerHTML = `
+               <div class="message-avatar">
+                   <i class="fas fa-robot"></i>
+               </div>
+               <div class="message-content">
+                   <p>${message}</p>
+               </div>
+           `;
+       } else {
+           messageDiv.innerHTML = `
+               <div class="message-content">
+                   <p>${message}</p>
+               </div>
+           `;
+       }
+       
+       chatMessages.appendChild(messageDiv);
+       chatMessages.scrollTop = chatMessages.scrollHeight;
+   }
+
+   // Helper functions
+   showMessage(message, type = 'info') {
+       const toast = document.getElementById('messageToast');
+       toast.innerHTML = `
+           <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+           <span>${message}</span>
+       `;
+       toast.className = `message-toast ${type} show`;
+       
+       setTimeout(() => {
+           toast.classList.remove('show');
+       }, 3000);
+   }
+
+   loadData() {
+       try {
+           const saved = localStorage.getItem('mindfulme_data');
+           return saved ? JSON.parse(saved) : null;
+       } catch (error) {
+           console.error('Error loading data:', error);
+           return null;
+       }
+   }
+
+   saveData() {
+       try {
+           localStorage.setItem('mindfulme_data', JSON.stringify(this.data));
+       } catch (error) {
+           console.error('Error saving data:', error);
+       }
+   }
+}
+
+// Initialize app when DOM is loaded
+let app;
+document.addEventListener('DOMContentLoaded', () => {
+   console.log('DOM loaded, creating app...');
+   app = new MindfulMeProApp();
+   window.app = app;
+   
+   // Make sure home page is shown
+   showPage('home');
+   
+   // Initialize quote immediately
+   const quotes = [
+       { text: "Every moment is a fresh beginning.", author: "T.S. Eliot" },
+       { text: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
+       { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
+       { text: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt" },
+       { text: "It is during our darkest moments that we must focus to see the light.", author: "Aristotle" }
+   ];
+   
+   const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+   const quoteEl = document.getElementById('dailyQuote');
+   const authorEl = document.getElementById('quoteAuthor');
+   if (quoteEl) quoteEl.textContent = randomQuote.text;
+   if (authorEl) authorEl.textContent = `— ${randomQuote.author}`;
+});
+
+

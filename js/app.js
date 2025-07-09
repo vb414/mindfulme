@@ -1191,4 +1191,255 @@ class MindfulMeProApp {
            happy: ['happy', 'good', 'great', 'wonderful', 'excited', 'joy'],
            sleep: ['sleep', 'insomnia', 'tired', 'rest', 'nightmare'],
            anger: ['angry', 'mad', 'frustrated', 'irritated', 'annoyed'],
-           lonely: ['lonely', 'alone', 'isolated',
+           lonely: ['lonely', 'alone', 'isolated', 'disconnected'],
+           help: ['help', 'support', 'need', 'crisis', 'emergency']
+       };
+       
+       // Check for crisis keywords
+       const crisisKeywords = ['suicide', 'kill myself', 'end it all', 'not worth living', 'better off dead'];
+       const containsCrisis = crisisKeywords.some(keyword => lowerMessage.includes(keyword));
+       
+       if (containsCrisis) {
+           return "I'm deeply concerned about what you're sharing. Your life has value and this pain won't last forever. Please reach out for immediate help:\n\n" +
+                  "**Crisis Hotline**: Call 988 (Suicide & Crisis Lifeline)\n" +
+                  "**Crisis Text**: Text HOME to 741741\n\n" +
+                  "Would you like me to help you find additional resources or someone to talk to right now?";
+       }
+       
+       // Find matching categories
+       let matchedCategories = [];
+       for (const [category, words] of Object.entries(keywords)) {
+           if (words.some(word => lowerMessage.includes(word))) {
+               matchedCategories.push(category);
+           }
+       }
+       
+       // Generate contextual response
+       if (matchedCategories.includes('anxiety')) {
+           const responses = [
+               "I hear that you're feeling anxious. That can be really challenging. Would you like to try a breathing exercise together? Our 4-7-8 technique is particularly effective for calming anxiety.",
+               "Anxiety can feel overwhelming. Remember, these feelings will pass. Have you noticed what might be triggering these anxious feelings today?",
+               "I understand anxiety can be difficult. Let's focus on the present moment. Can you name 5 things you can see, 4 you can touch, 3 you can hear, 2 you can smell, and 1 you can taste?",
+               "Feeling anxious is a common experience. Sometimes our breathing exercises can help calm your nervous system. Would you like to try one, or would you prefer to talk more about what's on your mind?"
+           ];
+           return responses[Math.floor(Math.random() * responses.length)];
+       }
+       
+       if (matchedCategories.includes('depression')) {
+           const responses = [
+               "I'm sorry you're going through a difficult time. Depression can make everything feel heavy. Have you been able to do any small activities today that usually bring you comfort?",
+               "Thank you for sharing how you're feeling. It takes courage to reach out. Would journaling about your thoughts help, or would you prefer to explore some gentle self-care activities?",
+               "I hear that you're struggling. Remember, these feelings won't last forever, even though they feel overwhelming right now. What's one small thing you could do today to care for yourself?",
+               "Depression can be exhausting. You're not alone in this. Have you considered tracking your mood patterns? Sometimes seeing the ups and downs can help us understand our feelings better."
+           ];
+           return responses[Math.floor(Math.random() * responses.length)];
+       }
+       
+       if (matchedCategories.includes('stress')) {
+           const responses = [
+               "Stress can really take a toll. Let's break this down - what's the biggest source of pressure you're facing right now?",
+               "I understand you're feeling overwhelmed. Sometimes taking a few minutes for a breathing exercise can help reset your nervous system. Would that be helpful?",
+               "Stress affects us all differently. Have you noticed where you feel it in your body? Sometimes a body scan meditation can help release that tension.",
+               "When we're stressed, everything can feel urgent. Let's prioritize - what absolutely needs your attention today, and what can wait?"
+           ];
+           return responses[Math.floor(Math.random() * responses.length)];
+       }
+       
+       if (matchedCategories.includes('happy')) {
+           const responses = [
+               "It's wonderful to hear you're feeling good! What's bringing you joy today?",
+               "That's fantastic! Positive emotions are so important. How can we help you maintain this good feeling?",
+               "I'm so glad you're having a good day! Would you like to capture this moment in a journal entry?",
+               "Your positive energy is contagious! What activities have contributed to this good mood?"
+           ];
+           return responses[Math.floor(Math.random() * responses.length)];
+       }
+       
+       if (matchedCategories.includes('sleep')) {
+           const responses = [
+               "Sleep issues can be frustrating. Have you tried our sleep meditation? It's designed to help quiet your mind before bed.",
+               "Good sleep is crucial for mental health. What's your current bedtime routine like? Sometimes small changes can make a big difference.",
+               "I understand sleep troubles can be exhausting. Would you like some tips for better sleep hygiene, or would you prefer to try a calming breathing exercise?",
+               "Sleep and mental health are closely connected. Have you noticed any patterns between your mood and sleep quality?"
+           ];
+           return responses[Math.floor(Math.random() * responses.length)];
+       }
+       
+       if (matchedCategories.includes('lonely')) {
+           const responses = [
+               "Feeling lonely can be really painful. I'm here with you. Would you like to talk about what's making you feel disconnected?",
+               "Loneliness is a difficult emotion. Remember, reaching out like this is a brave step. You're not as alone as you might feel.",
+               "I hear that you're feeling isolated. Sometimes even small connections can help. Have you been able to reach out to anyone today?",
+               "Loneliness can feel overwhelming. Would you like to explore some ways to build connections, or would you prefer to talk about how you're feeling?"
+           ];
+           return responses[Math.floor(Math.random() * responses.length)];
+       }
+       
+       // If no specific category, provide general supportive response
+       const generalResponses = [
+           "Thank you for sharing. I'm here to listen and support you. Can you tell me more about what's on your mind?",
+           "I appreciate you reaching out. How can I best support you today?",
+           "I'm here for you. Would you like to explore any of our wellness tools, or would you prefer to continue talking?",
+           "It sounds like you have a lot on your mind. I'm here to listen without judgment. What would be most helpful for you right now?",
+           "Thank you for trusting me with your thoughts. Would you like to try a mood check-in, or would you prefer to keep chatting?"
+       ];
+       
+       // Add follow-up questions based on conversation history
+       if (this.chatHistory.length > 2) {
+           const followUps = [
+               "We've been talking for a bit now. How are you feeling compared to when we started?",
+               "Based on what you've shared, would you like to try one of our exercises or continue our conversation?",
+               "I've noticed you've mentioned several things. Which one feels most important to address right now?"
+           ];
+           
+           if (Math.random() > 0.7) {
+               return generalResponses[Math.floor(Math.random() * generalResponses.length)] + " " + 
+                      followUps[Math.floor(Math.random() * followUps.length)];
+           }
+       }
+       
+       return generalResponses[Math.floor(Math.random() * generalResponses.length)];
+   }
+
+   addChatMessage(message, sender) {
+       const chatMessages = document.getElementById('chatMessages');
+       const messageDiv = document.createElement('div');
+       messageDiv.className = `message ${sender}-message`;
+       
+       if (sender === 'ai') {
+           messageDiv.innerHTML = `
+               <div class="message-avatar">
+                   <i class="fas fa-robot"></i>
+               </div>
+               <div class="message-content">
+                   <p>${message}</p>
+               </div>
+           `;
+       } else {
+           messageDiv.innerHTML = `
+               <div class="message-content">
+                   <p>${message}</p>
+               </div>
+           `;
+       }
+       
+       chatMessages.appendChild(messageDiv);
+       chatMessages.scrollTop = chatMessages.scrollHeight;
+   }
+
+   // Helper functions
+   showMessage(message, type = 'info') {
+       const toast = document.getElementById('messageToast');
+       toast.innerHTML = `
+           <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+           <span>${message}</span>
+       `;
+       toast.className = `message-toast ${type} show`;
+       
+       setTimeout(() => {
+           toast.classList.remove('show');
+       }, 3000);
+   }
+
+   loadData() {
+       try {
+           const saved = localStorage.getItem('mindfulme_data');
+           return saved ? JSON.parse(saved) : null;
+       } catch (error) {
+           console.error('Error loading data:', error);
+           return null;
+       }
+   }
+
+   saveData() {
+       try {
+           localStorage.setItem('mindfulme_data', JSON.stringify(this.data));
+       } catch (error) {
+           console.error('Error saving data:', error);
+       }
+   }
+}
+
+// Initialize app when DOM is loaded
+let app;
+document.addEventListener('DOMContentLoaded', () => {
+   console.log('DOM loaded, creating app...');
+   app = new MindfulMeProApp();
+   window.app = app;
+   
+   // Make sure home page is shown
+   showPage('home');
+   
+   // Initialize quote immediately
+   const quotes = [
+       { text: "Every moment is a fresh beginning.", author: "T.S. Eliot" },
+       { text: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
+       { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
+       { text: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt" },
+       { text: "It is during our darkest moments that we must focus to see the light.", author: "Aristotle" }
+   ];
+   
+   const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+   const quoteEl = document.getElementById('dailyQuote');
+   const authorEl = document.getElementById('quoteAuthor');
+   if (quoteEl) quoteEl.textContent = randomQuote.text;
+   if (authorEl) authorEl.textContent = `— ${randomQuote.author}`;
+});
+
+// Add typing animation styles
+const style = document.createElement('style');
+style.textContent = `
+   .typing-dots {
+       display: flex;
+       gap: 4px;
+   }
+   
+   .typing-dots span {
+       width: 8px;
+       height: 8px;
+       background: var(--primary);
+       border-radius: 50%;
+       animation: typing 1.4s infinite;
+   }
+   
+   .typing-dots span:nth-child(2) {
+       animation-delay: 0.2s;
+   }
+   
+   .typing-dots span:nth-child(3) {
+       animation-delay: 0.4s;
+   }
+   
+   @keyframes typing {
+       0%, 20%, 100% {
+           opacity: 0.3;
+           transform: translateY(0);
+       }
+       40% {
+           opacity: 1;
+           transform: translateY(-5px);
+       }
+   }
+   
+   .factor-item {
+       display: flex;
+       align-items: center;
+       gap: 1rem;
+       margin-bottom: 1rem;
+   }
+   
+   .factor-bar {
+       flex: 1;
+       height: 8px;
+       background: var(--glass-bg);
+       border-radius: 4px;
+       overflow: hidden;
+   }
+   
+   .factor-fill {
+       height: 100%;
+       background: var(--gradient-primary);
+       transition: width 1s ease;
+   }
+`;
+document.head.appendChild(style);

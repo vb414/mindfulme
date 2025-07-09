@@ -1146,160 +1146,88 @@ class MindfulMeProApp {
        // Store in history
        this.chatHistory.push({ role: 'user', content: message });
        
-       // Generate AI response
-       const response = await this.generateEnhancedAIResponse(message);
-       
-       // Add typing indicator
-       const typingDiv = this.addTypingIndicator();
-       
-       setTimeout(() => {
-           typingDiv.remove();
-           this.addChatMessage(response, 'ai');
-           this.chatHistory.push({ role: 'ai', content: response });
-       }, 1500);
-   }
+       async generateEnhancedAIResponse(message) {
+    // Crisis detection first - this is important to keep
+    const crisisKeywords = ['suicide', 'kill myself', 'end it all', 'not worth living', 'better off dead'];
+    const containsCrisis = crisisKeywords.some(keyword => message.toLowerCase().includes(keyword));
+    
+    if (containsCrisis) {
+        return "I'm deeply concerned about what you're sharing. Your life has value and this pain won't last forever. Please reach out for immediate help:\n\n" +
+               "**Crisis Hotline**: Call 988 (Suicide & Crisis Lifeline)\n" +
+               "**Crisis Text**: Text HOME to 741741\n\n" +
+               "Would you like me to help you find additional resources or someone to talk to right now?";
+    }
+    
+    
+    const API_KEY = 'AIzaSyC91Y4lkhM_YM6I5_-gAktSJYjmvxRPqjc'; // 
+    
+    try {
+        // Build conversation context
+        const conversationContext = this.chatHistory.slice(-10).map(msg => 
+            `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}`
+        ).join('\n');
+        
+        const prompt = `You are MindfulMe AI, a compassionate and empathetic mental health support assistant. Your role is to:
+- Listen with empathy and without judgment
+- Provide emotional support and validation
+- Suggest coping strategies when appropriate
+- Encourage self-care and wellness activities
+- Recommend using the app's features (mood tracking, breathing exercises, meditation, journaling) when relevant
+- Always encourage professional help for serious concerns
+- Never provide medical advice or diagnoses
 
-   addTypingIndicator() {
-       const chatMessages = document.getElementById('chatMessages');
-       const typingDiv = document.createElement('div');
-       typingDiv.className = 'message ai-message typing-indicator';
-       typingDiv.innerHTML = `
-           <div class="message-avatar">
-               <i class="fas fa-robot"></i>
-           </div>
-           <div class="message-content">
-               <div class="typing-dots">
-                   <span></span>
-                   <span></span>
-                   <span></span>
-               </div>
-           </div>
-       `;
-       chatMessages.appendChild(typingDiv);
-       chatMessages.scrollTop = chatMessages.scrollHeight;
-       return typingDiv;
-   }
+Previous conversation:
+${conversationContext}
 
-   async generateEnhancedAIResponse(message) {
-       const lowerMessage = message.toLowerCase();
-       
-       // Analyze sentiment and keywords
-       const keywords = {
-           anxiety: ['anxious', 'anxiety', 'worried', 'nervous', 'panic', 'fear'],
-           depression: ['sad', 'depressed', 'hopeless', 'empty', 'worthless', 'tired'],
-           stress: ['stress', 'overwhelmed', 'pressure', 'burden', 'exhausted'],
-           happy: ['happy', 'good', 'great', 'wonderful', 'excited', 'joy'],
-           sleep: ['sleep', 'insomnia', 'tired', 'rest', 'nightmare'],
-           anger: ['angry', 'mad', 'frustrated', 'irritated', 'annoyed'],
-           lonely: ['lonely', 'alone', 'isolated', 'disconnected'],
-           help: ['help', 'support', 'need', 'crisis', 'emergency']
-       };
-       
-       // Check for crisis keywords
-       const crisisKeywords = ['suicide', 'kill myself', 'end it all', 'not worth living', 'better off dead'];
-       const containsCrisis = crisisKeywords.some(keyword => lowerMessage.includes(keyword));
-       
-       if (containsCrisis) {
-           return "I'm deeply concerned about what you're sharing. Your life has value and this pain won't last forever. Please reach out for immediate help:\n\n" +
-                  "**Crisis Hotline**: Call 988 (Suicide & Crisis Lifeline)\n" +
-                  "**Crisis Text**: Text HOME to 741741\n\n" +
-                  "Would you like me to help you find additional resources or someone to talk to right now?";
-       }
-       
-       // Find matching categories
-       let matchedCategories = [];
-       for (const [category, words] of Object.entries(keywords)) {
-           if (words.some(word => lowerMessage.includes(word))) {
-               matchedCategories.push(category);
-           }
-       }
-       
-       // Generate contextual response
-       if (matchedCategories.includes('anxiety')) {
-           const responses = [
-               "I hear that you're feeling anxious. That can be really challenging. Would you like to try a breathing exercise together? Our 4-7-8 technique is particularly effective for calming anxiety.",
-               "Anxiety can feel overwhelming. Remember, these feelings will pass. Have you noticed what might be triggering these anxious feelings today?",
-               "I understand anxiety can be difficult. Let's focus on the present moment. Can you name 5 things you can see, 4 you can touch, 3 you can hear, 2 you can smell, and 1 you can taste?",
-               "Feeling anxious is a common experience. Sometimes our breathing exercises can help calm your nervous system. Would you like to try one, or would you prefer to talk more about what's on your mind?"
-           ];
-           return responses[Math.floor(Math.random() * responses.length)];
-       }
-       
-       if (matchedCategories.includes('depression')) {
-           const responses = [
-               "I'm sorry you're going through a difficult time. Depression can make everything feel heavy. Have you been able to do any small activities today that usually bring you comfort?",
-               "Thank you for sharing how you're feeling. It takes courage to reach out. Would journaling about your thoughts help, or would you prefer to explore some gentle self-care activities?",
-               "I hear that you're struggling. Remember, these feelings won't last forever, even though they feel overwhelming right now. What's one small thing you could do today to care for yourself?",
-               "Depression can be exhausting. You're not alone in this. Have you considered tracking your mood patterns? Sometimes seeing the ups and downs can help us understand our feelings better."
-           ];
-           return responses[Math.floor(Math.random() * responses.length)];
-       }
-       
-       if (matchedCategories.includes('stress')) {
-           const responses = [
-               "Stress can really take a toll. Let's break this down - what's the biggest source of pressure you're facing right now?",
-               "I understand you're feeling overwhelmed. Sometimes taking a few minutes for a breathing exercise can help reset your nervous system. Would that be helpful?",
-               "Stress affects us all differently. Have you noticed where you feel it in your body? Sometimes a body scan meditation can help release that tension.",
-               "When we're stressed, everything can feel urgent. Let's prioritize - what absolutely needs your attention today, and what can wait?"
-           ];
-           return responses[Math.floor(Math.random() * responses.length)];
-       }
-       
-       if (matchedCategories.includes('happy')) {
-           const responses = [
-               "It's wonderful to hear you're feeling good! What's bringing you joy today?",
-               "That's fantastic! Positive emotions are so important. How can we help you maintain this good feeling?",
-               "I'm so glad you're having a good day! Would you like to capture this moment in a journal entry?",
-               "Your positive energy is contagious! What activities have contributed to this good mood?"
-           ];
-           return responses[Math.floor(Math.random() * responses.length)];
-       }
-       
-       if (matchedCategories.includes('sleep')) {
-           const responses = [
-               "Sleep issues can be frustrating. Have you tried our sleep meditation? It's designed to help quiet your mind before bed.",
-               "Good sleep is crucial for mental health. What's your current bedtime routine like? Sometimes small changes can make a big difference.",
-               "I understand sleep troubles can be exhausting. Would you like some tips for better sleep hygiene, or would you prefer to try a calming breathing exercise?",
-               "Sleep and mental health are closely connected. Have you noticed any patterns between your mood and sleep quality?"
-           ];
-           return responses[Math.floor(Math.random() * responses.length)];
-       }
-       
-       if (matchedCategories.includes('lonely')) {
-           const responses = [
-               "Feeling lonely can be really painful. I'm here with you. Would you like to talk about what's making you feel disconnected?",
-               "Loneliness is a difficult emotion. Remember, reaching out like this is a brave step. You're not as alone as you might feel.",
-               "I hear that you're feeling isolated. Sometimes even small connections can help. Have you been able to reach out to anyone today?",
-               "Loneliness can feel overwhelming. Would you like to explore some ways to build connections, or would you prefer to talk about how you're feeling?"
-           ];
-           return responses[Math.floor(Math.random() * responses.length)];
-       }
-       
-       // If no specific category, provide general supportive response
-       const generalResponses = [
-           "Thank you for sharing. I'm here to listen and support you. Can you tell me more about what's on your mind?",
-           "I appreciate you reaching out. How can I best support you today?",
-           "I'm here for you. Would you like to explore any of our wellness tools, or would you prefer to continue talking?",
-           "It sounds like you have a lot on your mind. I'm here to listen without judgment. What would be most helpful for you right now?",
-           "Thank you for trusting me with your thoughts. Would you like to try a mood check-in, or would you prefer to keep chatting?"
-       ];
-       
-       // Add follow-up questions based on conversation history
-       if (this.chatHistory.length > 2) {
-           const followUps = [
-               "We've been talking for a bit now. How are you feeling compared to when we started?",
-               "Based on what you've shared, would you like to try one of our exercises or continue our conversation?",
-               "I've noticed you've mentioned several things. Which one feels most important to address right now?"
-           ];
-           
-           if (Math.random() > 0.7) {
-               return generalResponses[Math.floor(Math.random() * generalResponses.length)] + " " + 
-                      followUps[Math.floor(Math.random() * followUps.length)];
-           }
-       }
-       
-       return generalResponses[Math.floor(Math.random() * generalResponses.length)];
-   }
+User: ${message}
+
+Respond in a warm, supportive, and conversational tone. Keep responses concise but meaningful (2-4 sentences). Ask follow-up questions to show you're engaged and caring.`;
+
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${API_KEY}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                contents: [{
+                    parts: [{
+                        text: prompt
+                    }]
+                }],
+                generationConfig: {
+                    temperature: 0.7,
+                    maxOutputTokens: 150,
+                }
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`API error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+            const aiResponse = data.candidates[0].content.parts[0].text;
+            return aiResponse.trim();
+        } else {
+            throw new Error('Invalid response format');
+        }
+        
+    } catch (error) {
+        console.error('Gemini AI Error:', error);
+        
+        // Fallback responses if API fails
+        const fallbacks = [
+            "I'm having a bit of trouble connecting right now, but I'm still here for you. How are you feeling today?",
+            "Sorry, I'm experiencing some technical difficulties, but I want you to know I'm here to listen. What's on your mind?",
+            "I apologize for the connection issue. While I sort this out, would you like to try one of our breathing exercises or meditation sessions?",
+            "I'm having trouble with my connection, but your wellbeing is important to me. Have you tried journaling about how you're feeling?"
+        ];
+        
+        return fallbacks[Math.floor(Math.random() * fallbacks.length)];
+    }
+}
 
    addChatMessage(message, sender) {
        const chatMessages = document.getElementById('chatMessages');

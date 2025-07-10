@@ -1,4 +1,4 @@
-// MindfulMe Pro - Complete Functional App
+// MindfulMe Pro - Complete Functional App with API Key Management
 
 // Global navigation functions
 window.showPage = function(page) {
@@ -54,9 +54,49 @@ window.showPage = function(page) {
             case 'insights':
                 app.updateAnalyticsCharts();
                 break;
+            case 'ai-therapist':
+                checkAPIKeySetup();
+                break;
         }
     }
 };
+
+// API Key Management
+window.saveAPIKey = function() {
+    const apiKey = document.getElementById('apiKeyInput').value.trim();
+    if (apiKey) {
+        localStorage.setItem('gemini_api_key', apiKey);
+        document.getElementById('apiSetup').style.display = 'none';
+        document.getElementById('chatContainer').style.display = 'block';
+        window.app.showMessage('API key saved successfully!', 'success');
+    } else {
+        window.app.showMessage('Please enter a valid API key', 'error');
+    }
+};
+
+window.clearAPIKey = function() {
+    if (confirm('Are you sure you want to clear your API key?')) {
+        localStorage.removeItem('gemini_api_key');
+        checkAPIKeySetup();
+        window.app.showMessage('API key cleared', 'info');
+    }
+};
+
+function checkAPIKeySetup() {
+    const savedKey = localStorage.getItem('gemini_api_key');
+    const setupEl = document.getElementById('apiSetup');
+    const chatEl = document.getElementById('chatContainer');
+    
+    if (setupEl && chatEl) {
+        if (savedKey) {
+            setupEl.style.display = 'none';
+            chatEl.style.display = 'block';
+        } else {
+            setupEl.style.display = 'block';
+            chatEl.style.display = 'none';
+        }
+    }
+}
 
 window.toggleNav = function() {
     const navMenu = document.getElementById('navMenu');
@@ -215,127 +255,127 @@ class MindfulMeProApp {
         // Generate sample mood data for analytics
         const moods = [];
         const factors = ['Sleep', 'Exercise', 'Diet', 'Social', 'Work', 'Weather'];
-        
-        for (let i = 30; i >= 0; i--) {
-            const date = new Date();
-            date.setDate(date.getDate() - i);
-            
-            // Generate 1-2 moods per day
-            const moodsPerDay = Math.random() > 0.5 ? 2 : 1;
-            
-            for (let j = 0; j < moodsPerDay; j++) {
-                const moodValue = Math.floor(Math.random() * 2) + 3; // Mostly happy moods (3-5)
-                const selectedFactors = [];
-                
-                // Select 2-3 random factors
-                const numFactors = Math.floor(Math.random() * 2) + 2;
-                for (let k = 0; k < numFactors; k++) {
-                    const factor = factors[Math.floor(Math.random() * factors.length)];
-                    if (!selectedFactors.includes(factor)) {
-                        selectedFactors.push(factor);
-                    }
-                }
-                
-                moods.push({
-                    value: moodValue,
-                    factors: selectedFactors,
-                    note: '',
-                    date: date.toISOString()
-                });
-            }
-        }
-        
-        return moods;
-    }
+       
+       for (let i = 30; i >= 0; i--) {
+           const date = new Date();
+           date.setDate(date.getDate() - i);
+           
+           // Generate 1-2 moods per day
+           const moodsPerDay = Math.random() > 0.5 ? 2 : 1;
+           
+           for (let j = 0; j < moodsPerDay; j++) {
+               const moodValue = Math.floor(Math.random() * 2) + 3; // Mostly happy moods (3-5)
+               const selectedFactors = [];
+               
+               // Select 2-3 random factors
+               const numFactors = Math.floor(Math.random() * 2) + 2;
+               for (let k = 0; k < numFactors; k++) {
+                   const factor = factors[Math.floor(Math.random() * factors.length)];
+                   if (!selectedFactors.includes(factor)) {
+                       selectedFactors.push(factor);
+                   }
+               }
+               
+               moods.push({
+                   value: moodValue,
+                   factors: selectedFactors,
+                   note: '',
+                   date: date.toISOString()
+               });
+           }
+       }
+       
+       return moods;
+   }
 
-    async init() {
-        console.log('Initializing app...');
-        this.updateDateTime();
-        this.updateStats();
-        this.loadDailyQuote();
-        this.setupEventListeners();
-        
-        // Update every minute
-        setInterval(() => this.updateDateTime(), 60000);
-        
-        // Auto-save every 5 minutes
-        setInterval(() => this.saveData(), 300000);
-        
-        // Check daily streak
-        this.checkDailyStreak();
-    }
+   async init() {
+       console.log('Initializing app...');
+       this.updateDateTime();
+       this.updateStats();
+       this.loadDailyQuote();
+       this.setupEventListeners();
+       
+       // Update every minute
+       setInterval(() => this.updateDateTime(), 60000);
+       
+       // Auto-save every 5 minutes
+       setInterval(() => this.saveData(), 300000);
+       
+       // Check daily streak
+       this.checkDailyStreak();
+   }
 
-    setupEventListeners() {
-        // Close dropdowns on outside click
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.notification-btn') && !e.target.closest('.notification-panel')) {
-                const panel = document.getElementById('notificationPanel');
-                if (panel) panel.classList.remove('active');
-            }
-            if (!e.target.closest('.user-avatar') && !e.target.closest('.profile-dropdown')) {
-                const dropdown = document.getElementById('profileDropdown');
-                if (dropdown) dropdown.classList.remove('active');
-            }
-        });
+   setupEventListeners() {
+       // Close dropdowns on outside click
+       document.addEventListener('click', (e) => {
+           if (!e.target.closest('.notification-btn') && !e.target.closest('.notification-panel')) {
+               const panel = document.getElementById('notificationPanel');
+               if (panel) panel.classList.remove('active');
+           }
+           if (!e.target.closest('.user-avatar') && !e.target.closest('.profile-dropdown')) {
+               const dropdown = document.getElementById('profileDropdown');
+               if (dropdown) dropdown.classList.remove('active');
+           }
+       });
 
-        // Chat input auto-resize
-        const chatInput = document.getElementById('chatInput');
-        if (chatInput) {
-            chatInput.addEventListener('input', function() {
-                this.style.height = 'auto';
-                this.style.height = (this.scrollHeight) + 'px';
-            });
-        }
-    }
+       // Chat input auto-resize
+       const chatInput = document.getElementById('chatInput');
+       if (chatInput) {
+           chatInput.addEventListener('input', function() {
+               this.style.height = 'auto';
+               this.style.height = (this.scrollHeight) + 'px';
+           });
+       }
+   }
 
-    // Load daily inspirational quote
-    loadDailyQuote() {
-        const quotes = [
-            { content: "Every moment is a fresh beginning.", author: "T.S. Eliot" },
-            { content: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
-            { content: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
-            { content: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt" },
-            { content: "It is during our darkest moments that we must focus to see the light.", author: "Aristotle" },
-            { content: "You are never too old to set another goal or to dream a new dream.", author: "C.S. Lewis" },
-            { content: "Success is not final, failure is not fatal: it is the courage to continue that counts.", author: "Winston Churchill" },
-            { content: "The way to get started is to quit talking and begin doing.", author: "Walt Disney" },
-            { content: "Don't watch the clock; do what it does. Keep going.", author: "Sam Levenson" },
-            { content: "Everything you've ever wanted is on the other side of fear.", author: "George Addair" }
-        ];
-        
-        const quoteEl = document.getElementById('dailyQuote');
-        const authorEl = document.getElementById('quoteAuthor');
-        
-        // Pick a random quote
-        const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-        
-        if (quoteEl) {
-            quoteEl.textContent = randomQuote.content;
-        }
-        if (authorEl) {
-            authorEl.textContent = `— ${randomQuote.author}`;
-        }
-    }
+   // Load daily inspirational quote
+   loadDailyQuote() {
+       const quotes = [
+           { content: "Every moment is a fresh beginning.", author: "T.S. Eliot" },
+           { content: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
+           { content: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
+           { content: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt" },
+           { content: "It is during our darkest moments that we must focus to see the light.", author: "Aristotle" },
+           { content: "You are never too old to set another goal or to dream a new dream.", author: "C.S. Lewis" },
+           { content: "Success is not final, failure is not fatal: it is the courage to continue that counts.", author: "Winston Churchill" },
+           { content: "The way to get started is to quit talking and begin doing.", author: "Walt Disney" },
+           { content: "Don't watch the clock; do what it does. Keep going.", author: "Sam Levenson" },
+           { content: "Everything you've ever wanted is on the other side of fear.", author: "George Addair" }
+       ];
+       
+       const quoteEl = document.getElementById('dailyQuote');
+       const authorEl = document.getElementById('quoteAuthor');
+       
+       // Pick a random quote
+       const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+       
+       if (quoteEl) {
+           quoteEl.textContent = randomQuote.content;
+       }
+       if (authorEl) {
+           authorEl.textContent = `— ${randomQuote.author}`;
+       }
+   }
 
-    updateDateTime() {
-        const now = new Date();
-        const dateStr = now.toLocaleDateString('en-US', { 
-            weekday: 'long', 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
-        });
-        
-        const timeStr = now.toLocaleTimeString('en-US', { 
-            hour: '2-digit', 
-            minute: '2-digit' 
-        });
-        
-        const greeting = this.getGreeting();
-        
-        // Update greeting
-        const greetingEl = document.getElementById('greeting');
-        if (greetingEl) {
+   updateDateTime() {
+       const now = new Date();
+       const dateStr = now.toLocaleDateString('en-US', { 
+           weekday: 'long', 
+           year: 'numeric', 
+           month: 'long', 
+           day: 'numeric' 
+       });
+       
+       const timeStr = now.toLocaleTimeString('en-US', { 
+           hour: '2-digit', 
+           minute: '2-digit' 
+       });
+       
+       const greeting = this.getGreeting();
+       
+       // Update greeting
+       const greetingEl = document.getElementById('greeting');
+       if (greetingEl) {
            greetingEl.innerHTML = `${greeting}, <span class="username">Friend</span>!`;
        }
        
@@ -1131,7 +1171,7 @@ class MindfulMeProApp {
        this.showMessage('Meditation completed! 🧘', 'success');
    }
 
-   // Enhanced AI Chat
+   // Enhanced AI Chat with Gemini API
    async sendMessage() {
        const input = document.getElementById('chatInput');
        const message = input.value.trim();
@@ -1146,28 +1186,66 @@ class MindfulMeProApp {
        // Store in history
        this.chatHistory.push({ role: 'user', content: message });
        
-       async generateEnhancedAIResponse(message) {
-    // Crisis detection first - this is important to keep
-    const crisisKeywords = ['suicide', 'kill myself', 'end it all', 'not worth living', 'better off dead'];
-    const containsCrisis = crisisKeywords.some(keyword => message.toLowerCase().includes(keyword));
-    
-    if (containsCrisis) {
-        return "I'm deeply concerned about what you're sharing. Your life has value and this pain won't last forever. Please reach out for immediate help:\n\n" +
-               "**Crisis Hotline**: Call 988 (Suicide & Crisis Lifeline)\n" +
-               "**Crisis Text**: Text HOME to 741741\n\n" +
-               "Would you like me to help you find additional resources or someone to talk to right now?";
-    }
-    
-    
-    const API_KEY = ''; // 
-    
-    try {
-        // Build conversation context
-        const conversationContext = this.chatHistory.slice(-10).map(msg => 
-            `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}`
-        ).join('\n');
-        
-        const prompt = `You are MindfulMe AI, a compassionate and empathetic mental health support assistant. Your role is to:
+       // Generate AI response
+       const response = await this.generateEnhancedAIResponse(message);
+       
+       // Add typing indicator
+       const typingDiv = this.addTypingIndicator();
+       
+       setTimeout(() => {
+           typingDiv.remove();
+           this.addChatMessage(response, 'ai');
+           this.chatHistory.push({ role: 'ai', content: response });
+       }, 1500);
+   }
+
+   addTypingIndicator() {
+       const chatMessages = document.getElementById('chatMessages');
+       const typingDiv = document.createElement('div');
+       typingDiv.className = 'message ai-message typing-indicator';
+       typingDiv.innerHTML = `
+           <div class="message-avatar">
+               <i class="fas fa-robot"></i>
+           </div>
+           <div class="message-content">
+               <div class="typing-dots">
+                   <span></span>
+                   <span></span>
+                   <span></span>
+               </div>
+           </div>
+       `;
+       chatMessages.appendChild(typingDiv);
+       chatMessages.scrollTop = chatMessages.scrollHeight;
+       return typingDiv;
+   }
+
+   async generateEnhancedAIResponse(message) {
+       // Crisis detection first - this is important to keep
+       const crisisKeywords = ['suicide', 'kill myself', 'end it all', 'not worth living', 'better off dead'];
+       const containsCrisis = crisisKeywords.some(keyword => message.toLowerCase().includes(keyword));
+       
+       if (containsCrisis) {
+           return "I'm deeply concerned about what you're sharing. Your life has value and this pain won't last forever. Please reach out for immediate help:\n\n" +
+                  "**Crisis Hotline**: Call 988 (Suicide & Crisis Lifeline)\n" +
+                  "**Crisis Text**: Text HOME to 741741\n\n" +
+                  "Would you like me to help you find additional resources or someone to talk to right now?";
+       }
+       
+       // Get API key from localStorage
+       const API_KEY = localStorage.getItem('gemini_api_key');
+       
+       if (!API_KEY) {
+           return "Please set up your API key first. Click the 'Change API Key' button below to add your free Google Gemini API key.";
+       }
+       
+       try {
+           // Build conversation context
+           const conversationContext = this.chatHistory.slice(-10).map(msg => 
+               `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}`
+           ).join('\n');
+           
+           const prompt = `You are MindfulMe AI, a compassionate and empathetic mental health support assistant. Your role is to:
 - Listen with empathy and without judgment
 - Provide emotional support and validation
 - Suggest coping strategies when appropriate
@@ -1183,51 +1261,60 @@ User: ${message}
 
 Respond in a warm, supportive, and conversational tone. Keep responses concise but meaningful (2-4 sentences). Ask follow-up questions to show you're engaged and caring.`;
 
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${API_KEY}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                contents: [{
-                    parts: [{
-                        text: prompt
-                    }]
-                }],
-                generationConfig: {
-                    temperature: 0.7,
-                    maxOutputTokens: 150,
-                }
-            })
-        });
-        
-        if (!response.ok) {
-            throw new Error(`API error: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-            const aiResponse = data.candidates[0].content.parts[0].text;
-            return aiResponse.trim();
-        } else {
-            throw new Error('Invalid response format');
-        }
-        
-    } catch (error) {
-        console.error('Gemini AI Error:', error);
-        
-        // Fallback responses if API fails
-        const fallbacks = [
-            "I'm having a bit of trouble connecting right now, but I'm still here for you. How are you feeling today?",
-            "Sorry, I'm experiencing some technical difficulties, but I want you to know I'm here to listen. What's on your mind?",
-            "I apologize for the connection issue. While I sort this out, would you like to try one of our breathing exercises or meditation sessions?",
-            "I'm having trouble with my connection, but your wellbeing is important to me. Have you tried journaling about how you're feeling?"
-        ];
-        
-        return fallbacks[Math.floor(Math.random() * fallbacks.length)];
-    }
-}
+           const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${API_KEY}`, {
+               method: 'POST',
+               headers: {
+                   'Content-Type': 'application/json',
+               },
+               body: JSON.stringify({
+                   contents: [{
+                       parts: [{
+                           text: prompt
+                       }]
+                   }],
+                   generationConfig: {
+                       temperature: 0.7,
+                       maxOutputTokens: 150,
+                   }
+               })
+           });
+           
+           if (!response.ok) {
+               if (response.status === 403) {
+                   throw new Error('Invalid API key. Please check your key and try again.');
+               }
+               throw new Error(`API error: ${response.status}`);
+           }
+           
+           const data = await response.json();
+           
+           if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+               const aiResponse = data.candidates[0].content.parts[0].text;
+               return aiResponse.trim();
+           } else {
+               throw new Error('Invalid response format');
+           }
+           
+       } catch (error) {
+           console.error('Gemini AI Error:', error);
+           
+           if (error.message.includes('Invalid API key')) {
+               localStorage.removeItem('gemini_api_key');
+               checkAPIKeySetup();
+               return "Your API key seems to be invalid. Please enter a valid key in the setup above.";
+           }
+           
+           // Fallback responses if API fails
+           const fallbacks = [
+               "I'm having a bit of trouble connecting right now, but I'm still here for you. How are you feeling today?",
+               "Sorry, I'm experiencing some technical difficulties, but I want you to know I'm here to listen. What's on your mind?",
+               "I apologize for the connection issue. While I sort this out, would you like to try one of our breathing exercises or meditation sessions?",
+               "I'm having trouble with my connection, but your wellbeing is important to me. Have you tried journaling about how you're feeling?"
+           ];
+           
+           return fallbacks[Math.floor(Math.random() * fallbacks.length)];
+       }
+   }
 
    addChatMessage(message, sender) {
        const chatMessages = document.getElementById('chatMessages');
@@ -1314,60 +1401,3 @@ document.addEventListener('DOMContentLoaded', () => {
    if (authorEl) authorEl.textContent = `— ${randomQuote.author}`;
 });
 
-// Add typing animation styles
-const style = document.createElement('style');
-style.textContent = `
-   .typing-dots {
-       display: flex;
-       gap: 4px;
-   }
-   
-   .typing-dots span {
-       width: 8px;
-       height: 8px;
-       background: var(--primary);
-       border-radius: 50%;
-       animation: typing 1.4s infinite;
-   }
-   
-   .typing-dots span:nth-child(2) {
-       animation-delay: 0.2s;
-   }
-   
-   .typing-dots span:nth-child(3) {
-       animation-delay: 0.4s;
-   }
-   
-   @keyframes typing {
-       0%, 20%, 100% {
-           opacity: 0.3;
-           transform: translateY(0);
-       }
-       40% {
-           opacity: 1;
-           transform: translateY(-5px);
-       }
-   }
-   
-   .factor-item {
-       display: flex;
-       align-items: center;
-       gap: 1rem;
-       margin-bottom: 1rem;
-   }
-   
-   .factor-bar {
-       flex: 1;
-       height: 8px;
-       background: var(--glass-bg);
-       border-radius: 4px;
-       overflow: hidden;
-   }
-   
-   .factor-fill {
-       height: 100%;
-       background: var(--gradient-primary);
-       transition: width 1s ease;
-   }
-`;
-document.head.appendChild(style);
